@@ -6,6 +6,6 @@
 
 ---
 
-## ERD
+## 마일스톤
 
-![erd.png](img/erd.png)
+![milestone.png](img/milestone.png)
