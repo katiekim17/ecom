@@ -8,4 +8,6 @@
 
 ## 마일스톤
 
+[프로젝트 마일스톤](https://github.com/users/geonyeop123/projects/1/views/1)
+
 ![milestone.png](img/milestone.png)
