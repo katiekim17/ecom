@@ -31,7 +31,7 @@ class PointServiceTest {
         void success() {
             // given
             Long userId = 1L;
-            User user = User.builder().id(userId).name("yeop").build();
+            User user = User.builder().id(userId).build();
             when(pointRepository.findById(userId))
                     .thenReturn(Optional.of(Point.builder().user(user).balance(0).build()));
 
@@ -39,8 +39,8 @@ class PointServiceTest {
             Point point = pointService.find(userId);
 
             // then
-            assertThat(point.user).isEqualTo(user);
-            assertThat(point.balance).isEqualTo(0);
+            assertThat(point.getUser()).isEqualTo(user);
+            assertThat(point.getBalance()).isEqualTo(0);
             verify(pointRepository, times(1)).findById(userId);
         }
 
@@ -56,6 +56,31 @@ class PointServiceTest {
                     .hasMessage("등록되지 않은 회원입니다.");
 
             verify(pointRepository, times(1)).findById(userId);
+        }
+    }
+
+    @Nested
+    class charge {
+        @DisplayName("userId에 해당하는 유저의 포인트를 amount만큼 충전합니다.")
+        @Test
+        void success() {
+            // given
+            Long userId = 1L;
+            User user = User.builder().id(userId).build();
+            int originalAmount = 10;
+            Point point = Point.builder().user(user).balance(originalAmount).build();
+            int chargeAmount = 10;
+            when(pointRepository.findById(userId)).thenReturn(Optional.of(point));
+            when(pointRepository.save(point)).thenReturn(point);
+
+            ChargeCommand command = new ChargeCommand(userId, chargeAmount);
+            // when
+            Point charge = pointService.charge(command);
+
+            // then
+            assertThat(charge.getBalance()).isEqualTo(originalAmount + chargeAmount);
+            verify(pointRepository, times(1)).findById(userId);
+            verify(pointRepository, times(1)).save(point);
         }
     }
 

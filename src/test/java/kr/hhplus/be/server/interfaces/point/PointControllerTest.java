@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.point;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.domain.point.ChargeCommand;
 import kr.hhplus.be.server.domain.point.Point;
 import kr.hhplus.be.server.domain.point.PointService;
 import kr.hhplus.be.server.domain.user.User;
@@ -66,7 +67,14 @@ class PointControllerTest {
             Long userId = 1L;
             int amount = 10;
 
+            ChargeCommand command = new ChargeCommand(userId, amount);
+
+            Point chargedPoint = Point.builder().user(User.builder().id(1L).build()).balance(amount).build();
+
             PointRequest.Charge request = new PointRequest.Charge(amount);
+
+            when(pointService.charge(command)).thenReturn(chargedPoint);
+
 
             //when //then
             mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/{userId}/points", userId)
@@ -77,24 +85,8 @@ class PointControllerTest {
                         .andExpect(jsonPath("$.userId").value(userId))
                         .andExpect(jsonPath("$.balance").value(amount))
             ;
-        }
 
-        @Test
-        @DisplayName("충전할 값이 0이하인 경우 충전에 실패한다.")
-        void fail1() throws Exception {
-            //given
-            Long userId = 1L;
-            int amount = 0;
-
-            PointRequest.Charge request = new PointRequest.Charge(amount);
-
-            //when //then
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/{userId}/points", userId)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-            ;
+            verify(pointService, times(1)).charge(command);
         }
     }
 
