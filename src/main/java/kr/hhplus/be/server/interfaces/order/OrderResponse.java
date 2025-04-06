@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.interfaces.order.response;
+package kr.hhplus.be.server.interfaces.order;
 
 public record OrderResponse(
         Long orderId,

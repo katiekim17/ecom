@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.interfaces.product;
 
-import kr.hhplus.be.server.interfaces.product.response.ProductResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

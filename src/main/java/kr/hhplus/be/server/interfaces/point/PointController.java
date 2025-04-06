@@ -2,8 +2,6 @@ package kr.hhplus.be.server.interfaces.point;
 
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.interfaces.point.request.PointChargeRequest;
-import kr.hhplus.be.server.interfaces.point.response.PointResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +17,7 @@ public class PointController implements PointDocs{
 
     @PostMapping("/api/v1/users/{userId}/points")
     public ResponseEntity<PointResponse> charge(@PathVariable Long userId,
-                                                @Valid @RequestBody PointChargeRequest request) {
+                                                @Valid @RequestBody PointRequest.Charge request) {
         return ResponseEntity.ok(new PointResponse(userId, request.amount()));
     }
 

@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.interfaces.product.response;
+package kr.hhplus.be.server.interfaces.product;
 
 public record ProductResponse(
         Long productId,

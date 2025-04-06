@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.interfaces.order.request.CreateOrderRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,13 +25,13 @@ class OrderControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private CreateOrderRequest request;
+    private OrderRequest.Create request;
 
     @BeforeEach
     void setUp() {
-        request = new CreateOrderRequest(1L, null
-                , List.of(new CreateOrderRequest.OrderItem(1L, 1)
-                , new CreateOrderRequest.OrderItem(2L, 2)));
+        request = new OrderRequest.Create(1L, null
+                , List.of(new OrderRequest.OrderItem(1L, 1)
+                , new OrderRequest.OrderItem(2L, 2)));
     }
 
     @Test
@@ -41,7 +40,7 @@ class OrderControllerTest {
         // given
         Long userId = 1L;
 
-        CreateOrderRequest req = request;
+        OrderRequest.Create req = request;
 
         // when //then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders")

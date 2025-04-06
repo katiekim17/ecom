@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.interfaces.product;
 
-import kr.hhplus.be.server.interfaces.product.response.ProductResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

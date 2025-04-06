@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.point;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.interfaces.point.request.PointChargeRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,7 +50,7 @@ class PointControllerTest {
             Long userId = 1L;
             int amount = 10;
 
-            PointChargeRequest request = new PointChargeRequest(amount);
+            PointRequest.Charge request = new PointRequest.Charge(amount);
 
             //when //then
             mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/{userId}/points", userId)
@@ -71,7 +70,7 @@ class PointControllerTest {
             Long userId = 1L;
             int amount = 0;
 
-            PointChargeRequest request = new PointChargeRequest(amount);
+            PointRequest.Charge request = new PointRequest.Charge(amount);
 
             //when //then
             mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/{userId}/points", userId)
