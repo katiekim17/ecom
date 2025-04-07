@@ -1,12 +1,12 @@
 package kr.hhplus.be.server.domain.point;
 
+import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 class PointTest {
 
@@ -19,7 +19,7 @@ class PointTest {
             // given
             int amount = 1;
             int originalAmount = 10;
-            Point point = Point.builder().balance(originalAmount).build();
+            Point point = createPoint(originalAmount);
 
             // when
             point.charge(amount);
@@ -33,7 +33,7 @@ class PointTest {
         void fail() {
             // given
             int amount = 0;
-            Point point = Point.builder().balance(0).build();
+            Point point = createPoint(amount);
 
             // when // then
             assertThatThrownBy(() -> point.charge(amount))
@@ -46,7 +46,7 @@ class PointTest {
         void fail2() {
             // given
             int amount = 10_000_001;
-            Point point = Point.builder().balance(0).build();
+            Point point = createPoint(0);
 
             // when // then
             assertThatThrownBy(() -> point.charge(amount))
@@ -55,4 +55,7 @@ class PointTest {
         }
     }
 
+    private Point createPoint(int balance){
+        return Point.create(User.create(1L, "yeop"), balance);
+    }
 }

@@ -1,9 +1,10 @@
 package kr.hhplus.be.server.domain.point;
 
 import kr.hhplus.be.server.domain.user.User;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -12,7 +13,10 @@ public class Point {
     private User user;
     private int balance;
 
-    @Builder
+    public static Point create(User user, int balance) {
+        return new Point(user, balance);
+    }
+
     private Point(User user, int balance) {
         this.user = user;
         this.balance = balance;
@@ -28,5 +32,18 @@ public class Point {
         }
 
         this.balance = balance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Point point = (Point) o;
+        return balance == point.balance && Objects.equals(user, point.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user, balance);
     }
 }

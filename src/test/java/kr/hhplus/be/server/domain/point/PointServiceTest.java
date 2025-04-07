@@ -31,9 +31,9 @@ class PointServiceTest {
         void success() {
             // given
             Long userId = 1L;
-            User user = User.builder().id(userId).build();
+            User user = User.create(userId, "yeop");
             when(pointRepository.findById(userId))
-                    .thenReturn(Optional.of(Point.builder().user(user).balance(0).build()));
+                    .thenReturn(Optional.of(Point.create(user, 0)));
 
             // when
             Point point = pointService.find(userId);
@@ -66,9 +66,9 @@ class PointServiceTest {
         void success() {
             // given
             Long userId = 1L;
-            User user = User.builder().id(userId).build();
+            User user = User.create(userId, "yeop");
             int originalAmount = 10;
-            Point point = Point.builder().user(user).balance(originalAmount).build();
+            Point point = Point.create(user, originalAmount);
             int chargeAmount = 10;
             when(pointRepository.findById(userId)).thenReturn(Optional.of(point));
             when(pointRepository.save(point)).thenReturn(point);

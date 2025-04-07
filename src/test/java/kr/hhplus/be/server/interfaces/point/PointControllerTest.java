@@ -42,7 +42,7 @@ class PointControllerTest {
         void success() throws Exception {
             // given
             Long userId = 1L;
-            Point point = Point.builder().user(User.builder().id(1L).build()).balance(0).build();
+            Point point = createPoint(userId, 0);
 
             when(pointService.find(userId)).thenReturn(point);
 
@@ -69,7 +69,7 @@ class PointControllerTest {
 
             ChargeCommand command = new ChargeCommand(userId, amount);
 
-            Point chargedPoint = Point.builder().user(User.builder().id(1L).build()).balance(amount).build();
+            Point chargedPoint = createPoint(userId, amount);
 
             PointRequest.Charge request = new PointRequest.Charge(amount);
 
@@ -90,4 +90,7 @@ class PointControllerTest {
         }
     }
 
+    private Point createPoint(Long userId, int balance){
+        return Point.create(User.create(userId, "yeop"), balance);
+    }
 }
