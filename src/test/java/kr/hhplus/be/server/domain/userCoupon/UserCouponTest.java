@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.userCoupon;
 
+import kr.hhplus.be.server.support.exception.ExpiredException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ class UserCouponTest {
                     .hasMessage("보유 중인 쿠폰이 아닙니다.");
         }
 
-        @DisplayName("유효기간이 만료된 경우 IllegalArgumentException이 발생한다.")
+        @DisplayName("유효기간이 만료된 경우 ExpiredException 발생한다.")
         @Test
         void expiredAtValidate() {
             // given
@@ -87,7 +88,7 @@ class UserCouponTest {
 
             // when // then
             assertThatThrownBy(() -> userCoupon.validate(userId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(ExpiredException.class)
                     .hasMessage("유효기간이 만료된 쿠폰입니다.");
         }
     }
@@ -96,7 +97,7 @@ class UserCouponTest {
     class use {
 
 
-        @DisplayName("")
+        @DisplayName("정상적인 쿠폰과 유저인 경우 사용처리가 가능하다.")
         @Test
         void success() {
             // given
@@ -137,7 +138,7 @@ class UserCouponTest {
                     .hasMessage("보유 중인 쿠폰이 아닙니다.");;
         }
 
-        @DisplayName("쿠폰을 사용할 때 유효기간이 지난 경우 IllegalArgumentException이 발생한다.")
+        @DisplayName("쿠폰을 사용할 때 유효기간이 지난 경우 ExpiredException 발생한다.")
         @Test
         void failExpired() {
             // given
@@ -152,7 +153,7 @@ class UserCouponTest {
 
             // when // then
             assertThatThrownBy(() -> userCoupon.use(userId))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(ExpiredException.class)
                     .hasMessage("유효기간이 만료된 쿠폰입니다.");
         }
     }
