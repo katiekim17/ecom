@@ -12,14 +12,16 @@ import java.util.Objects;
 @NoArgsConstructor
 public class Point {
 
+    private Long id;
     private User user;
     private int balance;
 
-    public static Point create(User user, int balance) {
-        return new Point(user, balance);
+    public static Point create(Long id, User user, int balance) {
+        return new Point(id, user, balance);
     }
 
-    private Point(User user, int balance) {
+    private Point(Long id, User user, int balance) {
+        this.id = id;
         this.user = user;
         this.balance = balance;
     }
