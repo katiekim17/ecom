@@ -30,4 +30,22 @@ public class UserCouponService {
         return PageResult.create(userCoupons, command.pageNo(), command.pageSize(), totalCount);
     }
 
+    public UserCoupon findById(Long id) {
+        return userCouponRepository.findById(id)
+                            .orElseThrow(() -> new IllegalArgumentException("조회된 쿠폰이 없습니다."));
+    }
+
+    public UserCoupon validate(Long userId, Long userCouponId) {
+        UserCoupon userCoupon = findById(userCouponId);
+        userCoupon.validate(userId);
+        return userCoupon;
+    }
+
+    public UserCoupon use(Long userId, Long userCouponId) {
+
+        UserCoupon userCoupon = findById(userCouponId);
+        userCoupon.use(userId);
+
+        return userCouponRepository.save(userCoupon);
+    }
 }

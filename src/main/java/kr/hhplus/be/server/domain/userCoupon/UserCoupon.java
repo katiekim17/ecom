@@ -40,4 +40,21 @@ public class UserCoupon {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    public void validate(Long userId) {
+        if(!this.userId.equals(userId)){
+            throw new IllegalArgumentException("보유 중인 쿠폰이 아닙니다.");
+        }else if(isExpiration()){
+            throw new IllegalArgumentException("유효기간이 만료된 쿠폰입니다.");
+        }
+    }
+
+    public boolean isExpiration() {
+        return LocalDate.now().isAfter(this.expiredAt);
+    }
+
+    public void use(Long userId) {
+        validate(userId);
+        this.usedAt = LocalDateTime.now();
+    }
 }

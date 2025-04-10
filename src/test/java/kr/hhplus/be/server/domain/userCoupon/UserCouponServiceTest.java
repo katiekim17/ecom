@@ -4,15 +4,19 @@ import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,4 +60,58 @@ class UserCouponServiceTest {
         verify(userCouponRepository, times(1)).findCountByUserId(userId);
         verify(userCouponRepository, times(1)).findAllByUserId(command);
     }
+
+    @Nested
+    class find {
+        @DisplayName("userCouponId로 해당하는 쿠폰을 조회할 수 있다.")
+        @Test
+        void findByIdSuccess() {
+            // given
+            Long userCouponId = 1L;
+            UserCoupon userCoupon = UserCoupon.builder().id(1L).couponId(1L).name("깜짝 쿠폰").discountAmount(5000).build();
+            when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
+
+            // when
+            UserCoupon findUserCoupon = userCouponService.findById(userCouponId);
+
+            // then
+            assertThat(findUserCoupon).isNotNull();
+            verify(userCouponRepository, times(1)).findById(userCouponId);
+        }
+
+        @DisplayName("userCouponId에 해당하는 쿠폰이 없는 경우에 IllegalArgumentException이 발생한다.")
+        @Test
+        void findByIdFail() {
+            // given
+            Long userCouponId = 1L;
+
+            // when // then
+            assertThatThrownBy(() -> userCouponService.findById(userCouponId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("조회된 쿠폰이 없습니다.");
+        }
+    }
+
+    @DisplayName("쿠폰 사용처리를 할 수 있다.")
+    @Test
+    void use() {
+        // given
+        Long userId = 1L;
+        Long userCouponId = 1L;
+        UserCoupon userCoupon =
+                UserCoupon.builder().id(1L).userId(userId).couponId(1L)
+                        .name("깜짝 쿠폰").expiredAt(LocalDate.now()
+                        .plusMonths(3)).discountAmount(5000).build();
+        when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
+        when(userCouponRepository.save(userCoupon)).thenReturn(userCoupon);
+
+        // when
+        UserCoupon usedUserCoupon = userCouponService.use(userId, userCouponId);
+
+        // then
+        assertThat(usedUserCoupon).isNotNull();
+        verify(userCouponRepository, times(1)).findById(userCouponId);
+        verify(userCouponRepository, times(1)).save(userCoupon);
+    }
+
 }
