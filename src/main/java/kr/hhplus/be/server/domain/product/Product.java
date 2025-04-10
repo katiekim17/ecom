@@ -13,6 +13,19 @@ public class Product {
     private int stock;
     private int price;
 
+    public void validate(int deductAmount){
+        if(stock - deductAmount < 0){
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+    }
+
+    public void deductStock(int amount){
+        if(stock - amount < 0){
+            throw new IllegalArgumentException("재고가 부족합니다.");
+        }
+        stock -= amount;
+    }
+
     private Product(Long id, String name, int stock, int price) {
         this.id = id;
         this.name = name;

@@ -34,6 +34,18 @@ public class Point {
         this.balance = balance;
     }
 
+    public void use(int amount) {
+
+        int usedBalance = this.balance - amount;
+
+        if(amount <= 0){
+            throw new IllegalArgumentException("포인트는 1포인트 이상부터 사용 가능합니다.");
+        }else if(usedBalance <= 0){
+            throw new IllegalArgumentException("보유 포인트가 부족합니다.");
+        }
+        balance = usedBalance;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

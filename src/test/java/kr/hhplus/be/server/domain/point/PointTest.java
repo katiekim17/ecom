@@ -55,6 +55,52 @@ class PointTest {
         }
     }
 
+    @Nested
+    class use{
+        @DisplayName("포인트를 사용하면, 기존 포인트에서 사용할 포인트를 차감한 포인트를 보유한다.")
+        @Test
+        void success() {
+            // given
+            int amount = 10;
+            int originalAmount = 15;
+            Point point = createPoint(originalAmount);
+
+            // when
+            point.use(amount);
+
+            // then
+            assertThat(point.getBalance()).isEqualTo(originalAmount - amount);
+        }
+
+        @DisplayName("0포인트 이하를 사용할 경우 IllegalArgumentException이 발생한다.")
+        @Test
+        void fail() {
+            // given
+            int amount = 0;
+            int originalAmount = 10;
+            Point point = createPoint(originalAmount);
+
+            // when // then
+            assertThatThrownBy(() -> point.use(amount))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("포인트는 1포인트 이상부터 사용 가능합니다.");
+        }
+
+        @DisplayName("사용할 포인트보다 잔고가 부족한 경우 IllegalArgumentException이 발생한다.")
+        @Test
+        void fail2() {
+            // given
+            int amount = 11;
+            int originalAmount = 10;
+            Point point = createPoint(originalAmount);
+
+            // when // then
+            assertThatThrownBy(() -> point.use(amount))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("보유 포인트가 부족합니다.");
+        }
+    }
+
     private Point createPoint(int balance){
         return Point.create(User.create(1L, "yeop"), balance);
     }

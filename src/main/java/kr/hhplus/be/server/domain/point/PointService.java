@@ -27,4 +27,13 @@ public class PointService {
 
         return point;
     }
+
+    public Point use(Long userId, int amount) {
+        Point point = find(userId);
+
+        point.use(amount);
+        pointRepository.save(point);
+
+        return point;
+    }
 }

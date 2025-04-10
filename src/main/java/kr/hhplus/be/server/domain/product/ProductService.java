@@ -27,4 +27,20 @@ public class ProductService {
 
         return PageResult.create(products, command.pageNo(), command.pageSize(), totalCount);
     }
+
+    public Product validatePurchase(Long productId, int quantity){
+        Product product = find(productId);
+        product.validate(quantity);
+        return product;
+    }
+
+    public Product deductStock(Long productId, int amount) {
+
+        Product product = find(productId);
+        product.deductStock(amount);
+
+        productRepository.save(product);
+
+        return product;
+    }
 }

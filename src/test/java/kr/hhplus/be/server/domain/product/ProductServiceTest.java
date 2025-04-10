@@ -88,10 +88,33 @@ class ProductServiceTest {
         }
     }
 
+    @Nested
+    class deductStock {
+        @DisplayName("차감할 재고만큼 재고가 충분한 경우 재고를 차감할 수 있다.")
+        @Test
+        void success() {
+            // given
+            Long productId = 1L;
+            int stock = 50;
+            int amount = 10;
+            Product findProduct = Product.create(1L, "사과", stock, 5000);
+
+            when(productRepository.find(productId)).thenReturn(Optional.of(findProduct));
+
+            // when
+            Product deductedProduct = productService.deductStock(productId, amount);
+
+            // then
+            assertThat(deductedProduct.getId()).isEqualTo(productId);
+            assertThat(deductedProduct.getStock()).isEqualTo(stock - amount);
+            verify(productRepository, times(1)).find(productId);
+            verify(productRepository, times(1)).save(findProduct);
+        }
+    }
+
 
     private static Product makeProduct(Long productId, String name, int price, int stock) {
         return Product.create(productId, name, price, stock);
     }
-
 
 }
