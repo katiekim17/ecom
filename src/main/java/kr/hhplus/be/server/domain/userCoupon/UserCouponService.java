@@ -41,10 +41,10 @@ public class UserCouponService {
         return userCoupon;
     }
 
-    public UserCoupon use(Long userId, Long userCouponId) {
+    public UserCoupon use(UserCouponCommand.Use command) {
 
-        UserCoupon userCoupon = findById(userCouponId);
-        userCoupon.use(userId);
+        UserCoupon userCoupon = findById(command.userCouponId());
+        userCoupon.use(command.userId(), command.orderId());
 
         return userCouponRepository.save(userCoupon);
     }

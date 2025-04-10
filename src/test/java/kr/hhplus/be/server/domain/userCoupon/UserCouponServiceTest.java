@@ -98,15 +98,17 @@ class UserCouponServiceTest {
         // given
         Long userId = 1L;
         Long userCouponId = 1L;
+        Long orderId = 1L;
         UserCoupon userCoupon =
                 UserCoupon.builder().id(1L).userId(userId).couponId(1L)
                         .name("깜짝 쿠폰").expiredAt(LocalDate.now()
                         .plusMonths(3)).discountAmount(5000).build();
         when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
         when(userCouponRepository.save(userCoupon)).thenReturn(userCoupon);
+        UserCouponCommand.Use command = new UserCouponCommand.Use(userId, userCouponId, 1L);
 
         // when
-        UserCoupon usedUserCoupon = userCouponService.use(userId, userCouponId);
+        UserCoupon usedUserCoupon = userCouponService.use(command);
 
         // then
         assertThat(usedUserCoupon).isNotNull();

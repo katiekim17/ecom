@@ -8,4 +8,11 @@ public record UserCouponCommand(
     ){
 
     }
+
+    public record Use(
+            Long userId, Long userCouponId, Long orderId
+    )
+    {
+
+    }
 }

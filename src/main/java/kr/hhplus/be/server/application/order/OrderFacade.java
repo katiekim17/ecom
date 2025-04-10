@@ -13,6 +13,7 @@ import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
+import kr.hhplus.be.server.domain.userCoupon.UserCouponCommand;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,10 @@ public class OrderFacade {
                         productService.deductStock(orderProduct.getProduct().getId(), orderProduct.getQuantity()));
 
         Optional.ofNullable(criteria.userCouponId())
-                .ifPresent(id -> userCouponService.use(criteria.userId(), criteria.userCouponId()));
+                .ifPresent(id -> {
+                    UserCouponCommand.Use command = new UserCouponCommand.Use(criteria.userId(), criteria.userCouponId(), order.getId());
+                    userCouponService.use(command);
+                });
 
         return new OrderResult(
                 completedOrder.getId(), payment.getId(),

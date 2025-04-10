@@ -13,6 +13,7 @@ public class UserCoupon {
     private Long id;
     private Long userId;
     private Long couponId;
+    private Long orderId;
     private String name;
     private int discountAmount;
     private LocalDateTime usedAt;
@@ -54,8 +55,9 @@ public class UserCoupon {
         return LocalDate.now().isAfter(this.expiredAt);
     }
 
-    public void use(Long userId) {
+    public void use(Long userId, Long orderId) {
         validate(userId);
+        this.orderId = orderId;
         this.usedAt = LocalDateTime.now();
     }
 }
