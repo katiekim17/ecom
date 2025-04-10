@@ -29,7 +29,7 @@ public class Coupon {
     }
 
     private void deductQuantity() {
-        if(quantity < 0){
+        if(quantity <= 0){
             throw new IllegalArgumentException("발급 가능한 수량을 초과하였습니다.");
         }
         quantity--;

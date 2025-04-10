@@ -38,7 +38,7 @@ class CouponServiceTest {
         CouponCommand command = new CouponCommand(userId, couponId);
         User user = User.create(userId, "yeop");
         Coupon coupon = Coupon.create(couponId, "4월 깜짝 쿠폰", 5000, 5, 50);
-        UserCoupon userCoupon = UserCoupon.builder().id(1L).couponId(couponId).userId(userId).build();
+        UserCoupon userCoupon = UserCoupon.builder().couponId(couponId).userId(userId).build();
 
         when(userService.findByUserId(userId)).thenReturn(user);
         when(couponRepository.findById(couponId)).thenReturn(coupon);
