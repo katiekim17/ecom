@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.userCoupon;
 
+import kr.hhplus.be.server.support.exception.AlreadyUsedException;
 import kr.hhplus.be.server.support.exception.ExpiredException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -91,6 +92,27 @@ class UserCouponTest {
                     .isInstanceOf(ExpiredException.class)
                     .hasMessage("유효기간이 만료된 쿠폰입니다.");
         }
+
+        @DisplayName("사용된 쿠폰인 경우 AlreadyUsedException이 발생한다.")
+        @Test
+        void alreadyUsedException() {
+            // given
+            Long userId = 1L;
+            UserCoupon userCoupon = UserCoupon.builder()
+                    .userId(userId)
+                    .couponId(1L)
+                    .name("깜짝 쿠폰")
+                    .discountAmount(5000)
+                    .expiredAt(LocalDate.now().minusDays(1))
+                    .build();
+
+            userCoupon.use(1L, 1L);
+
+            // when // then
+            assertThatThrownBy(() -> userCoupon.validate(userId))
+                    .isInstanceOf(AlreadyUsedException.class)
+                    .hasMessage("이미 사용된 쿠폰입니다.");
+        }
     }
 
     @Nested
@@ -158,6 +180,27 @@ class UserCouponTest {
             assertThatThrownBy(() -> userCoupon.use(userId, orderId))
                     .isInstanceOf(ExpiredException.class)
                     .hasMessage("유효기간이 만료된 쿠폰입니다.");
+        }
+
+        @DisplayName("사용된 쿠폰인 경우 AlreadyUsedException이 발생한다.")
+        @Test
+        void alreadyUsedException() {
+            // given
+            Long userId = 1L;
+            UserCoupon userCoupon = UserCoupon.builder()
+                    .userId(userId)
+                    .couponId(1L)
+                    .name("깜짝 쿠폰")
+                    .discountAmount(5000)
+                    .expiredAt(LocalDate.now().minusDays(1))
+                    .build();
+
+            userCoupon.use(1L, 1L);
+
+            // when // then
+            assertThatThrownBy(() -> userCoupon.validate(userId))
+                    .isInstanceOf(AlreadyUsedException.class)
+                    .hasMessage("이미 사용된 쿠폰입니다.");
         }
     }
 

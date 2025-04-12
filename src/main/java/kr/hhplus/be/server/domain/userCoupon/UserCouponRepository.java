@@ -8,5 +8,6 @@ public interface UserCouponRepository {
     long findCountByUserId(Long userId);
     List<UserCoupon> findAllByUserId(UserCouponCommand.FindAll command);
 
+    Optional<UserCoupon> findByUserIdAndCouponId(Long userId, Long couponId);
     Optional<UserCoupon> findById(Long id);
 }
