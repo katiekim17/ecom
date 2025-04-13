@@ -6,14 +6,9 @@ import lombok.Getter;
 @Getter
 public class OrderProduct {
     private Long id;
-    private Order order;
     private Product product;
     private int price;
     private int quantity;
-
-    public void setOrder(Order order){
-        this.order = order;
-    }
 
     public OrderProduct(Product product, int quantity) {
         this.product = product;
