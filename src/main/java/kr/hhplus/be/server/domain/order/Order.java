@@ -20,13 +20,13 @@ public class Order {
 
     public void addOrderProduct(OrderProduct orderProduct) {
         orderProducts.add(orderProduct);
-        orderProduct.setOrder(this);
     }
 
     public void calculateTotalAmount() {
         orderProducts.forEach(orderProduct ->
                 orderAmount += orderProduct.getPrice() * orderProduct.getQuantity());
         int discountAmount = orderAmount - discountInfo.discountAmount();
+
         finalAmount = Math.max(discountAmount, 0);
     }
 

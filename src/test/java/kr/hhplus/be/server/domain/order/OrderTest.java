@@ -24,7 +24,7 @@ class OrderTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
     }
 
-    @DisplayName("order에 orderProduct를 추가할 시 orderProduct의 order값이 해당 order가 된다.")
+    @DisplayName("order에 orderProduct를 추가할 수 있다.")
     @Test
     void addOrderProduct() {
         // given
@@ -35,7 +35,6 @@ class OrderTest {
         order.addOrderProduct(orderProduct);
 
         // then
-        assertThat(orderProduct.getOrder()).isEqualTo(order);
         assertThat(order.getOrderProducts()).hasSize(1);
     }
 
