@@ -12,7 +12,7 @@ class OrderProductTest {
     @Test
     void createOrderProduct() {
         // given
-        Product product = Product.create(1L, "사과", 50, 5000);
+        Product product = Product.create( "사과", 50, 5000);
 
         // when
         OrderProduct orderProduct = OrderProduct.create(product, 1);

@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.payment.Payment;
 import kr.hhplus.be.server.domain.payment.PaymentCommand;
 import kr.hhplus.be.server.domain.payment.PaymentService;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductCommand;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
@@ -45,7 +46,8 @@ public class OrderFacade {
 
         List<OrderCommand.OrderLine> orderLines = criteria.orderLines().stream()
                 .map(orderLine -> {
-                    Product product = productService.validatePurchase(orderLine.productId(), orderLine.quantity());
+                    ProductCommand.ValidatePurchase command = new ProductCommand.ValidatePurchase(orderLine.productId(), orderLine.quantity());
+                    Product product = productService.validatePurchase(command);
                     return new OrderCommand.OrderLine(product, orderLine.quantity());
                 }).toList();
 
@@ -57,8 +59,10 @@ public class OrderFacade {
         Order completedOrder = orderService.complete(order);
 
         order.getOrderProducts()
-                .forEach(orderProduct ->
-                        productService.deductStock(orderProduct.getProduct().getId(), orderProduct.getQuantity()));
+                .forEach(orderProduct -> {
+                    ProductCommand.DeductStock command = new ProductCommand.DeductStock(orderProduct.getProduct().getId(), orderProduct.getQuantity());
+                    productService.deductStock(command);
+                });
 
         Optional.ofNullable(criteria.userCouponId())
                 .ifPresent(id -> {

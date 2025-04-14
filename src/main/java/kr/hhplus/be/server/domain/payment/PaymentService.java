@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.payment;
 
+import kr.hhplus.be.server.domain.point.PointCommand;
 import kr.hhplus.be.server.domain.point.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

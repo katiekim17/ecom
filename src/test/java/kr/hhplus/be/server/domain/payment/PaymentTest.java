@@ -31,7 +31,7 @@ class PaymentTest {
         // given
         User user = User.create("yeop");
         Order order = Order.create(user, DiscountInfo.empty());
-        order.addOrderProduct(OrderProduct.create(makeProduct(1L, 5000), 1));
+        order.addOrderProduct(OrderProduct.create(makeProduct(5000), 1));
         order.calculateTotalAmount();
         // when
         Payment payment = Payment.createByOrder(order);
@@ -41,8 +41,8 @@ class PaymentTest {
     }
 
 
-    private static Product makeProduct(Long productId, int price) {
-        return Product.create(productId, "사과", 50, price);
+    private static Product makeProduct(int price) {
+        return Product.create("사과", 50, price);
     }
 
 }

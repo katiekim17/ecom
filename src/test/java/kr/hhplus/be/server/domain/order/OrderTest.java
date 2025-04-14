@@ -28,8 +28,8 @@ class OrderTest {
     @Test
     void addOrderProduct() {
         // given
-        OrderProduct orderProduct = OrderProduct.create(makeProductById(1L), 1);
-        Order order = Order.create(User.create(1L, "yeop"), DiscountInfo.empty());
+        OrderProduct orderProduct = OrderProduct.create(makeProduct(1000), 1);
+        Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
 
         // when
         order.addOrderProduct(orderProduct);
@@ -48,8 +48,8 @@ class OrderTest {
             int secondPrice = 6000;
 
             DiscountInfo discountInfo = DiscountInfo.empty();
-            OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, firstPrice), 1);
-            OrderProduct orderProduct2 = OrderProduct.create(makeProduct(2L, secondPrice), 1);
+            OrderProduct orderProduct = OrderProduct.create(makeProduct(firstPrice), 1);
+            OrderProduct orderProduct2 = OrderProduct.create(makeProduct(secondPrice), 1);
 
             Order order = Order.create(User.create("yeop"), discountInfo);
             order.addOrderProduct(orderProduct);
@@ -70,7 +70,7 @@ class OrderTest {
             int price = 5000;
             int discountAmount = 3000;
             DiscountInfo discountInfo = DiscountInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
-            OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, price), 1);
+            OrderProduct orderProduct = OrderProduct.create(makeProduct(price), 1);
 
             Order order = Order.create(User.create("yeop"), discountInfo);
             order.addOrderProduct(orderProduct);
@@ -90,7 +90,7 @@ class OrderTest {
             int price = 5000;
             int discountAmount = 6000;
             DiscountInfo discountInfo = DiscountInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
-            OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, price), 1);
+            OrderProduct orderProduct = OrderProduct.create(makeProduct(price), 1);
 
             Order order = Order.create(User.create("yeop"), discountInfo);
             order.addOrderProduct(orderProduct);
@@ -111,8 +111,8 @@ class OrderTest {
         int firstPrice = 5000;
         int secondPrice = 6000;
 
-        OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, firstPrice), 1);
-        OrderProduct orderProduct2 = OrderProduct.create(makeProduct(2L, secondPrice), 1);
+        OrderProduct orderProduct = OrderProduct.create(makeProduct(firstPrice), 1);
+        OrderProduct orderProduct2 = OrderProduct.create(makeProduct(secondPrice), 1);
 
         Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
         order.addOrderProduct(orderProduct);
@@ -138,13 +138,7 @@ class OrderTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
-    private static Product makeProduct(Long productId, int price) {
-        return Product.create(productId, "사과", 50, price);
+    private static Product makeProduct( int price) {
+        return Product.create( "사과", 50, price);
     }
-
-    private static Product makeProductById(Long productid) {
-        return makeProduct(productid, 5000);
-    }
-
-
 }
