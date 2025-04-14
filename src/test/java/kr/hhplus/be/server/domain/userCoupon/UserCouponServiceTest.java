@@ -36,13 +36,13 @@ class UserCouponServiceTest {
     void findAllByUserId() {
         // given
         Long userId = 1L;
-        User user = User.create(userId, "yeop");
+        User user = User.create("yeop");
         UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(userId, 1, 10);
         List<UserCoupon> userCoupons = List.of(
                 UserCoupon.builder().id(1L).userId(1L).couponId(1L).build()
                 , UserCoupon.builder().id(2L).userId(1L).couponId(1L).build()
         );
-        when(userService.findByUserId(userId)).thenReturn(user);
+        when(userService.findById(userId)).thenReturn(user);
         when(userCouponRepository.findCountByUserId(userId)).thenReturn(2L);
         when(userCouponRepository.findAllByUserId(command)).thenReturn(userCoupons);
 
@@ -56,7 +56,7 @@ class UserCouponServiceTest {
         assertThat(result.totalCount()).isEqualTo(2);
         assertThat(result.totalPages()).isEqualTo(1);
 
-        verify(userService, times(1)).findByUserId(userId);
+        verify(userService, times(1)).findById(userId);
         verify(userCouponRepository, times(1)).findCountByUserId(userId);
         verify(userCouponRepository, times(1)).findAllByUserId(command);
     }

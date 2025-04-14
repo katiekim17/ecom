@@ -34,7 +34,7 @@ public class OrderFacade {
 
     public OrderResult order(OrderCriteria.Create criteria) {
 
-        User user = userService.findByUserId(criteria.userId());
+        User user = userService.findById(criteria.userId());
 
         DiscountInfo discountInfo = Optional.ofNullable(criteria.userCouponId())
                 .map(userCouponId -> {

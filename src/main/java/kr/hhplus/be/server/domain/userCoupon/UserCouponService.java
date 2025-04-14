@@ -17,7 +17,7 @@ public class UserCouponService {
 
     public PageResult<UserCoupon> findAllByUserId(UserCouponCommand.FindAll command) {
 
-        userService.findByUserId(command.userId());
+        userService.findById(command.userId());
 
         long totalCount = userCouponRepository.findCountByUserId(command.userId());
 

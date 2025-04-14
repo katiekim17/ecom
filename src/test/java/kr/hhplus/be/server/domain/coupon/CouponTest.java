@@ -30,7 +30,7 @@ class CouponTest {
     void issueToDeductQuantity() {
         // given
         Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, 50);
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
         int originalQuantity = coupon.getQuantity();
 
         // when
@@ -45,7 +45,7 @@ class CouponTest {
     void issueLeftQuantityZero() {
         // given
         Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, 0);
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
 
         // when
         assertThatThrownBy(() -> coupon.issueTo(user))
@@ -60,7 +60,7 @@ class CouponTest {
     void issueExpirationByExpirationMonth() {
         // given
         Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, 10);
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
         LocalDate now = LocalDate.now();
 
         // when

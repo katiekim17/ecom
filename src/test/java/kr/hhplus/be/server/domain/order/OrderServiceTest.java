@@ -28,8 +28,8 @@ class OrderServiceTest {
     @Test
     void order() {
         // given
-        User user = User.create(1L, "yeop");
-        Product product = Product.create(1L, "사과", 50, 5000);
+        User user = User.create("yeop");
+        Product product = Product.create( "사과", 50, 5000);
         List<OrderCommand.OrderLine> orderLines =
                 List.of(new OrderCommand.OrderLine(product, 1));
 
@@ -48,7 +48,7 @@ class OrderServiceTest {
     @Test
     void test() {
         // given
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
         Order order = Order.create(user, DiscountInfo.empty());
 
         // when

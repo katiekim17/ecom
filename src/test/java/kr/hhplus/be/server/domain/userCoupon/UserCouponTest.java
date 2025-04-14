@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -103,10 +104,9 @@ class UserCouponTest {
                     .couponId(1L)
                     .name("깜짝 쿠폰")
                     .discountAmount(5000)
-                    .expiredAt(LocalDate.now().minusDays(1))
+                    .expiredAt(LocalDate.now().plusDays(1))
+                    .usedAt(LocalDateTime.now().minusDays(1))
                     .build();
-
-            userCoupon.use(1L, 1L);
 
             // when // then
             assertThatThrownBy(() -> userCoupon.validate(userId))
@@ -192,10 +192,9 @@ class UserCouponTest {
                     .couponId(1L)
                     .name("깜짝 쿠폰")
                     .discountAmount(5000)
-                    .expiredAt(LocalDate.now().minusDays(1))
+                    .expiredAt(LocalDate.now().plusDays(1))
+                    .usedAt(LocalDateTime.now().minusDays(1))
                     .build();
-
-            userCoupon.use(1L, 1L);
 
             // when // then
             assertThatThrownBy(() -> userCoupon.validate(userId))

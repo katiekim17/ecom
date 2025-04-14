@@ -19,7 +19,8 @@ public class PaymentService {
     public Payment pay(PaymentCommand command) {
 
         Payment payment = Payment.createByOrder(command.order());
-        pointService.use(command.userId(), payment.getTotalAmount());
+
+        pointService.use(new PointCommand.USE(command.userId(), payment.getTotalAmount()));
         payment.complete(LocalDateTime.now());
         return paymentRepository.save(payment);
     }

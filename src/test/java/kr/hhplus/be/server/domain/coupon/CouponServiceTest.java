@@ -43,11 +43,11 @@ class CouponServiceTest {
             Long userId = 1L;
             Long couponId = 1L;
             CouponCommand command = new CouponCommand(userId, couponId);
-            User user = User.create(userId, "yeop");
+            User user = User.create("yeop");
             Coupon coupon = Coupon.create(couponId, "4월 깜짝 쿠폰", 5000, 5, 50);
             UserCoupon userCoupon = UserCoupon.builder().couponId(couponId).userId(userId).build();
 
-            when(userService.findByUserId(userId)).thenReturn(user);
+            when(userService.findById(userId)).thenReturn(user);
             when(couponRepository.findById(couponId)).thenReturn(coupon);
             when(userCouponRepository.save(userCoupon)).thenReturn(userCoupon);
 
@@ -56,7 +56,7 @@ class CouponServiceTest {
 
             // then
             assertThat(issuedCoupon).isEqualTo(userCoupon);
-            verify(userService, times(1)).findByUserId(userId);
+            verify(userService, times(1)).findById(userId);
             verify(couponRepository, times(1)).findById(couponId);
             verify(userCouponRepository, times(1)).save(userCoupon);
         }
@@ -69,11 +69,11 @@ class CouponServiceTest {
             Long couponId = 1L;
             Long userCouponId = 1L;
             CouponCommand command = new CouponCommand(userId, couponId);
-            User user = User.create(userId, "yeop");
+            User user = User.create("yeop");
             Coupon coupon = Coupon.create(couponId, "4월 깜짝 쿠폰", 5000, 5, 50);
             UserCoupon userCoupon = UserCoupon.builder().id(userCouponId).couponId(couponId).userId(userId).build();
 
-            when(userService.findByUserId(userId)).thenReturn(user);
+            when(userService.findById(userId)).thenReturn(user);
             when(couponRepository.findById(couponId)).thenReturn(coupon);
             when(userCouponRepository.findByUserIdAndCouponId(userId, couponId)).thenReturn(Optional.of(userCoupon));
 
@@ -83,7 +83,7 @@ class CouponServiceTest {
                     .hasMessage("이미 발급 받은 쿠폰입니다.");
 
             // then
-            verify(userService, times(1)).findByUserId(userId);
+            verify(userService, times(1)).findById(userId);
             verify(couponRepository, times(1)).findById(couponId);
             verify(userCouponRepository, times(1)).findByUserIdAndCouponId(userId, couponId);
         }

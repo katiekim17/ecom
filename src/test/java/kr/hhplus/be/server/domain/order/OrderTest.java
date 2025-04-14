@@ -15,7 +15,7 @@ class OrderTest {
     @Test
     void createOrder() {
         // given
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
 
         // when
         Order order = Order.create(user, DiscountInfo.empty());
@@ -51,7 +51,7 @@ class OrderTest {
             OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, firstPrice), 1);
             OrderProduct orderProduct2 = OrderProduct.create(makeProduct(2L, secondPrice), 1);
 
-            Order order = Order.create(User.create(1L, "yeop"), discountInfo);
+            Order order = Order.create(User.create("yeop"), discountInfo);
             order.addOrderProduct(orderProduct);
             order.addOrderProduct(orderProduct2);
 
@@ -72,7 +72,7 @@ class OrderTest {
             DiscountInfo discountInfo = DiscountInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
             OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, price), 1);
 
-            Order order = Order.create(User.create(1L, "yeop"), discountInfo);
+            Order order = Order.create(User.create("yeop"), discountInfo);
             order.addOrderProduct(orderProduct);
 
             // when
@@ -92,7 +92,7 @@ class OrderTest {
             DiscountInfo discountInfo = DiscountInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
             OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, price), 1);
 
-            Order order = Order.create(User.create(1L, "yeop"), discountInfo);
+            Order order = Order.create(User.create("yeop"), discountInfo);
             order.addOrderProduct(orderProduct);
 
             // when
@@ -114,7 +114,7 @@ class OrderTest {
         OrderProduct orderProduct = OrderProduct.create(makeProduct(1L, firstPrice), 1);
         OrderProduct orderProduct2 = OrderProduct.create(makeProduct(2L, secondPrice), 1);
 
-        Order order = Order.create(User.create(1L, "yeop"), DiscountInfo.empty());
+        Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
         order.addOrderProduct(orderProduct);
         order.addOrderProduct(orderProduct2);
 
@@ -129,7 +129,7 @@ class OrderTest {
     @Test
     void test() {
         // given
-        Order order = Order.create(User.create(1L, "yeop"), DiscountInfo.empty());
+        Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
 
         // when
         order.complete();

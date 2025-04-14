@@ -20,7 +20,7 @@ public class CouponService {
 
     @Transactional
     public UserCoupon issue(CouponCommand command) {
-        User user = userService.findByUserId(command.userId());
+        User user = userService.findById(command.userId());
         Coupon coupon = couponRepository.findById(command.couponId());
 
         userCouponRepository

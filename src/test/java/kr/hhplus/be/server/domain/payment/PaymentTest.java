@@ -16,7 +16,7 @@ class PaymentTest {
     @Test
     void createByOrder() {
         // given
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
         Order order = Order.create(user, DiscountInfo.empty());
         // when
         Payment payment = Payment.createByOrder(order);
@@ -29,7 +29,7 @@ class PaymentTest {
     @Test
     void totalAmountEqualToFinalAmount() {
         // given
-        User user = User.create(1L, "yeop");
+        User user = User.create("yeop");
         Order order = Order.create(user, DiscountInfo.empty());
         order.addOrderProduct(OrderProduct.create(makeProduct(1L, 5000), 1));
         order.calculateTotalAmount();

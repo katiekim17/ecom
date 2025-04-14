@@ -31,9 +31,9 @@ class PointServiceTest {
         void success() {
             // given
             Long userId = 1L;
-            User user = User.create(userId, "yeop");
-            when(pointRepository.findById(userId))
-                    .thenReturn(Optional.of(Point.create(1L, user, 0)));
+            User user = User.create("yeop");
+            when(pointRepository.findByUserId(userId))
+                    .thenReturn(Optional.of(Point.create(user, 0)));
 
             // when
             Point point = pointService.find(userId);
@@ -41,7 +41,7 @@ class PointServiceTest {
             // then
             assertThat(point.getUser()).isEqualTo(user);
             assertThat(point.getBalance()).isEqualTo(0);
-            verify(pointRepository, times(1)).findById(userId);
+            verify(pointRepository, times(1)).findByUserId(userId);
         }
 
         @DisplayName("userId에 해당하는 유저가 없는 경우 IllegalArgumentException이 발생한다.")
@@ -55,7 +55,7 @@ class PointServiceTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("등록되지 않은 회원입니다.");
 
-            verify(pointRepository, times(1)).findById(userId);
+            verify(pointRepository, times(1)).findByUserId(userId);
         }
     }
 
@@ -66,20 +66,20 @@ class PointServiceTest {
         void success() {
             // given
             Long userId = 1L;
-            User user = User.create(userId, "yeop");
+            User user = User.create("yeop");
             int originalAmount = 10;
-            Point point = Point.create(1L, user, originalAmount);
+            Point point = Point.create(user, originalAmount);
             int chargeAmount = 10;
-            when(pointRepository.findById(userId)).thenReturn(Optional.of(point));
+            when(pointRepository.findByUserId(userId)).thenReturn(Optional.of(point));
             when(pointRepository.save(point)).thenReturn(point);
 
-            ChargeCommand command = new ChargeCommand(userId, chargeAmount);
+            PointCommand.CHARGE command = new PointCommand.CHARGE(userId, chargeAmount);
             // when
             Point charge = pointService.charge(command);
 
             // then
             assertThat(charge.getBalance()).isEqualTo(originalAmount + chargeAmount);
-            verify(pointRepository, times(1)).findById(userId);
+            verify(pointRepository, times(1)).findByUserId(userId);
             verify(pointRepository, times(1)).save(point);
         }
     }
