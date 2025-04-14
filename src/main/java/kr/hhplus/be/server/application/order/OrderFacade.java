@@ -39,7 +39,8 @@ public class OrderFacade {
 
         DiscountInfo discountInfo = Optional.ofNullable(criteria.userCouponId())
                 .map(userCouponId -> {
-                    UserCoupon userCoupon = userCouponService.validate(criteria.userId(), criteria.userCouponId());
+                    UserCouponCommand.Validate command = new UserCouponCommand.Validate(criteria.userId(), criteria.userCouponId());
+                    UserCoupon userCoupon = userCouponService.validate(command);
                     return DiscountInfo.from(userCoupon);
                 })
                 .orElse(DiscountInfo.empty());

@@ -19,7 +19,7 @@ class CouponTest {
         int initialQuantity = 50;
 
         // when
-        Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, initialQuantity);
+        Coupon coupon = Coupon.create( "4월 반짝 쿠폰", 5000, 3, initialQuantity);
 
         // then
         assertThat(coupon.getQuantity()).isEqualTo(initialQuantity);
@@ -29,7 +29,7 @@ class CouponTest {
     @Test
     void issueToDeductQuantity() {
         // given
-        Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, 50);
+        Coupon coupon = Coupon.create( "4월 반짝 쿠폰", 5000, 3, 50);
         User user = User.create("yeop");
         int originalQuantity = coupon.getQuantity();
 
@@ -44,7 +44,7 @@ class CouponTest {
     @Test
     void issueLeftQuantityZero() {
         // given
-        Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, 0);
+        Coupon coupon = Coupon.create( "4월 반짝 쿠폰", 5000, 3, 0);
         User user = User.create("yeop");
 
         // when
@@ -59,7 +59,7 @@ class CouponTest {
     @Test
     void issueExpirationByExpirationMonth() {
         // given
-        Coupon coupon = Coupon.create(1L, "4월 반짝 쿠폰", 5000, 3, 10);
+        Coupon coupon = Coupon.create("4월 반짝 쿠폰", 5000, 3, 10);
         User user = User.create("yeop");
         LocalDate now = LocalDate.now();
 

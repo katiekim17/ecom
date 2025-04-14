@@ -1,37 +1,48 @@
 package kr.hhplus.be.server.infra.userCoupon;
 
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
-import kr.hhplus.be.server.domain.userCoupon.UserCouponCommand;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class UserCouponRepositoryImpl implements UserCouponRepository {
+
+    private final JpaUserCouponRepository jpaUserCouponRepository;
+
     @Override
     public UserCoupon save(UserCoupon userCoupon) {
-        return null;
+        return jpaUserCouponRepository.save(userCoupon);
     }
 
     @Override
-    public long findCountByUserId(Long userId) {
-        return 0;
+    public List<UserCoupon> saveAll(List<UserCoupon> userCoupons) {
+        return jpaUserCouponRepository.saveAll(userCoupons);
     }
 
     @Override
-    public List<UserCoupon> findAllByUserId(UserCouponCommand.FindAll command) {
-        return List.of();
+    public Page<UserCoupon> findAllByUserId(Long userId, Pageable pageable) {
+        return jpaUserCouponRepository.findAllByUserId(userId, pageable);
+    }
+
+    @Override
+    public void deleteAllInBatch() {
+        jpaUserCouponRepository.deleteAllInBatch();
     }
 
     @Override
     public Optional<UserCoupon> findByUserIdAndCouponId(Long userId, Long couponId) {
-        return Optional.empty();
+        return jpaUserCouponRepository.findByUserIdAndCouponId(userId, couponId);
     }
 
     @Override
     public Optional<UserCoupon> findById(Long id) {
-        return Optional.empty();
+        return jpaUserCouponRepository.findById(id);
     }
 }

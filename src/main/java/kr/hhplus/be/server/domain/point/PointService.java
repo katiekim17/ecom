@@ -23,8 +23,6 @@ public class PointService {
         Point point = find(command.userId());
         point.charge(command.amount());
 
-        pointRepository.save(point);
-
         return point;
     }
 
@@ -32,8 +30,6 @@ public class PointService {
         Point point = find(command.userId());
 
         point.use(command.amount());
-        pointRepository.save(point);
-
         return point;
     }
 }

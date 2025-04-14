@@ -1,14 +1,25 @@
 package kr.hhplus.be.server.domain.coupon;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import kr.hhplus.be.server.domain.common.BaseEntity;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 @Getter
-public class Coupon {
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Coupon extends BaseEntity {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int discountAmount;
@@ -35,12 +46,11 @@ public class Coupon {
         quantity--;
     }
 
-    public static Coupon create(Long id, String name, int discountAmount, int expirationMonth, int initialQuantity) {
-        return new Coupon(id, name, discountAmount, expirationMonth, initialQuantity, initialQuantity);
+    public static Coupon create(String name, int discountAmount, int expirationMonth, int initialQuantity) {
+        return new Coupon(name, discountAmount, expirationMonth, initialQuantity, initialQuantity);
     }
 
-    private Coupon(Long id, String name, int discountAmount, int expirationMonth, int initialQuantity, int quantity) {
-        this.id = id;
+    private Coupon(String name, int discountAmount, int expirationMonth, int initialQuantity, int quantity) {
         this.name = name;
         this.discountAmount = discountAmount;
         this.expirationMonth = expirationMonth;
