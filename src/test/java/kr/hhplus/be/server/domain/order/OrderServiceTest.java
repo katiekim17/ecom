@@ -46,7 +46,7 @@ class OrderServiceTest {
 
     @DisplayName("완료 요청 시 Order의 status가 COMPLEATE가 된다.")
     @Test
-    void test() {
+    void complete() {
         // given
         User user = User.create("yeop");
         Order order = Order.create(user, DiscountInfo.empty());
