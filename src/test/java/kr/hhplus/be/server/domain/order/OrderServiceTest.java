@@ -33,7 +33,7 @@ class OrderServiceTest {
         List<OrderCommand.OrderLine> orderLines =
                 List.of(new OrderCommand.OrderLine(product, 1));
 
-        OrderCommand command = new OrderCommand(user, DiscountInfo.empty(), orderLines);
+        OrderCommand.Create command = new OrderCommand.Create(user, DiscountInfo.empty(), orderLines);
 
         when(orderRepository.save(any(Order.class))).thenReturn(any(Order.class));
 

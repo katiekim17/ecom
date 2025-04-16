@@ -47,7 +47,7 @@ class PointServiceIntegrationTest {
         User savedUser = userRepository.save(User.create("user"));
         pointRepository.save(Point.create(savedUser, 0));
         int amount = 10;
-        PointCommand.CHARGE command = new PointCommand.CHARGE(savedUser.getId(), amount);
+        PointCommand.Charge command = new PointCommand.Charge(savedUser.getId(), amount);
 
         // when
         Point chargedPoint = pointService.charge(command);
@@ -63,7 +63,7 @@ class PointServiceIntegrationTest {
         User savedUser = userRepository.save(User.create("user"));
         pointRepository.save(Point.create(savedUser, 10));
         int amount = 10;
-        PointCommand.USE command = new PointCommand.USE(savedUser.getId(), amount);
+        PointCommand.Use command = new PointCommand.Use(savedUser.getId(), amount);
         // when
         Point usedPoint = pointService.use(command);
 

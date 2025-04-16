@@ -73,7 +73,7 @@ class PointServiceTest {
             when(pointRepository.findByUserId(userId)).thenReturn(Optional.of(point));
             when(pointRepository.save(point)).thenReturn(point);
 
-            PointCommand.CHARGE command = new PointCommand.CHARGE(userId, chargeAmount);
+            PointCommand.Charge command = new PointCommand.Charge(userId, chargeAmount);
             // when
             Point charge = pointService.charge(command);
 

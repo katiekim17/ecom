@@ -39,13 +39,13 @@ class PaymentServiceTest {
         order.addOrderProduct(new OrderProduct(Product.create("사과", 50, 5000), 2));
         order.calculateTotalAmount();
 
-        PointCommand.USE command = new PointCommand.USE(1L, 10000);
+        PointCommand.Use command = new PointCommand.Use(1L, 10000);
         Point usedPoint = Point.create(user, 0);
 
         when(pointService.use(command)).thenReturn(usedPoint);
         when(paymentRepository.save(any(Payment.class))).thenReturn(any(Payment.class));
 
-        PaymentCommand paymentCommand = new PaymentCommand(order, 1L);
+        PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(order, 1L);
 
         // when
         paymentService.pay(paymentCommand);

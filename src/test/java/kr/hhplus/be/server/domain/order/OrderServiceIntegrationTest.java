@@ -60,7 +60,7 @@ class OrderServiceIntegrationTest {
                 new OrderCommand.OrderLine(product2, 2)
         );
 
-        OrderCommand command = new OrderCommand(savedUser, discountInfo, orderLines);
+        OrderCommand.Create command = new OrderCommand.Create(savedUser, discountInfo, orderLines);
 
         // when
         Order order = orderService.order(command);

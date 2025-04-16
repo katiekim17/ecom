@@ -12,7 +12,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public Order order(OrderCommand command) {
+    public Order order(OrderCommand.Create command) {
         Order order = Order.create(command.user(), command.discountInfo());
 
         command.orderLines().stream()

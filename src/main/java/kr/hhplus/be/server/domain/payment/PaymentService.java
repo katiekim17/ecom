@@ -17,11 +17,11 @@ public class PaymentService {
     private final PointService pointService;
 
     @Transactional
-    public Payment pay(PaymentCommand command) {
+    public Payment pay(PaymentCommand.Pay command) {
 
         Payment payment = Payment.createByOrder(command.order());
 
-        pointService.use(new PointCommand.USE(command.userId(), payment.getTotalAmount()));
+        pointService.use(new PointCommand.Use(command.userId(), payment.getTotalAmount()));
         payment.complete(LocalDateTime.now());
         return paymentRepository.save(payment);
     }

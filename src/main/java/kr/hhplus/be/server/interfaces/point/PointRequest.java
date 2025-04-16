@@ -11,8 +11,8 @@ public record PointRequest(
                 @NotNull
                 Integer amount
         ){
-                PointCommand.CHARGE toCommand(Long userId){
-                        return new PointCommand.CHARGE(userId, amount);
+                PointCommand.Charge toCommand(Long userId){
+                        return new PointCommand.Charge(userId, amount);
                 }
         }
 }

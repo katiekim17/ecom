@@ -18,7 +18,7 @@ public class PointService {
     }
 
     @Transactional
-    public Point charge(PointCommand.CHARGE command) {
+    public Point charge(PointCommand.Charge command) {
 
         Point point = find(command.userId());
         point.charge(command.amount());
@@ -26,7 +26,7 @@ public class PointService {
         return point;
     }
 
-    public Point use(PointCommand.USE command) {
+    public Point use(PointCommand.Use command) {
         Point point = find(command.userId());
 
         point.use(command.amount());

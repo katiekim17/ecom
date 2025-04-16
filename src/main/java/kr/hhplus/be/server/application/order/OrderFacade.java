@@ -52,10 +52,10 @@ public class OrderFacade {
                     return new OrderCommand.OrderLine(product, orderLine.quantity());
                 }).toList();
 
-        OrderCommand orderCommand = new OrderCommand(user, discountInfo, orderLines);
+        OrderCommand.Create orderCommand = new OrderCommand.Create(user, discountInfo, orderLines);
         Order order = orderService.order(orderCommand);
 
-        PaymentCommand paymentCommand = new PaymentCommand(order, criteria.userId());
+        PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(order, criteria.userId());
         Payment payment = paymentService.pay(paymentCommand);
         Order completedOrder = orderService.complete(order);
 

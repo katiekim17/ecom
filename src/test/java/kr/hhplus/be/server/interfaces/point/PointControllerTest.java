@@ -66,7 +66,7 @@ class PointControllerTest {
             Point chargedPoint = createPoint(amount);
 
             PointRequest.Charge request = new PointRequest.Charge(amount);
-            PointCommand.CHARGE command = request.toCommand(userId);
+            PointCommand.Charge command = request.toCommand(userId);
 
             when(pointService.charge(command)).thenReturn(chargedPoint);
 

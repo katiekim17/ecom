@@ -58,7 +58,7 @@ class PaymentServiceIntegrationTest {
         Order savedOrder = orderRepository.save(order);
 
         // when
-        PaymentCommand command = new PaymentCommand(savedOrder, user.getId());
+        PaymentCommand.Pay command = new PaymentCommand.Pay(savedOrder, user.getId());
         Payment pay = paymentService.pay(command);
 
         // then
