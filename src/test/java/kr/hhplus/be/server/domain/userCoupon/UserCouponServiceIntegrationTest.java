@@ -3,6 +3,8 @@ package kr.hhplus.be.server.domain.userCoupon;
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
+import kr.hhplus.be.server.domain.coupon.CouponType;
+import kr.hhplus.be.server.domain.coupon.DiscountType;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -93,11 +95,11 @@ class UserCouponServiceIntegrationTest {
         User user = User.create("yeop");
         User savedUser = userRepository.save(user);
 
-        Coupon coupon = Coupon.create("깜짝쿠폰", 5000, 3, 50);
+        Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
         Coupon savedCoupon = couponRepository.save(coupon);
 
         // when
-        UserCouponCommand.Issue command = new UserCouponCommand.Issue(savedUser, savedCoupon);
+        UserCouponCommand.Issue command = new UserCouponCommand.Issue(savedUser, coupon);
         UserCoupon issuedCoupon = userCouponService.issue(command);
 
         // then

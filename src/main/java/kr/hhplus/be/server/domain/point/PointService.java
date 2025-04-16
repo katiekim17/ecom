@@ -26,6 +26,7 @@ public class PointService {
         return point;
     }
 
+    @Transactional
     public Point use(PointCommand.Use command) {
         Point point = find(command.userId());
 

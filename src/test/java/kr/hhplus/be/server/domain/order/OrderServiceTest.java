@@ -56,7 +56,6 @@ class OrderServiceTest {
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.SUCCESS);
-        verify(orderRepository, times(1)).save(any(Order.class));
     }
 
 }

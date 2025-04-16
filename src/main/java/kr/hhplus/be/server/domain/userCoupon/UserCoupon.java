@@ -1,10 +1,9 @@
 package kr.hhplus.be.server.domain.userCoupon;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseEntity;
+import kr.hhplus.be.server.domain.coupon.CouponType;
+import kr.hhplus.be.server.domain.coupon.DiscountType;
 import kr.hhplus.be.server.support.exception.AlreadyUsedException;
 import kr.hhplus.be.server.support.exception.ExpiredException;
 import lombok.AccessLevel;
@@ -26,16 +25,28 @@ public class UserCoupon extends BaseEntity {
     private Long couponId;
     private Long orderId;
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    private CouponType type;
+
+    @Enumerated(EnumType.STRING)
+    private DiscountType discountType;
+
     private int discountAmount;
+
     private LocalDateTime usedAt;
+
     private LocalDate expiredAt;
 
     @Builder
-    private UserCoupon(Long id, Long userId, Long couponId, String name, int discountAmount, LocalDateTime usedAt, LocalDate expiredAt) {
-        this.id = id;
+    private UserCoupon(Long userId, Long couponId, Long orderId, String name, CouponType type,
+                       DiscountType discountType, int discountAmount, LocalDateTime usedAt, LocalDate expiredAt) {
         this.userId = userId;
         this.couponId = couponId;
+        this.orderId = orderId;
         this.name = name;
+        this.type = type;
+        this.discountType = discountType;
         this.discountAmount = discountAmount;
         this.usedAt = usedAt;
         this.expiredAt = expiredAt;

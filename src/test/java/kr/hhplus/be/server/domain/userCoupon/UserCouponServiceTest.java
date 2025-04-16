@@ -2,6 +2,8 @@ package kr.hhplus.be.server.domain.userCoupon;
 
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.CouponType;
+import kr.hhplus.be.server.domain.coupon.DiscountType;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -42,8 +44,8 @@ class UserCouponServiceTest {
         UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(userId, 1, 10);
 
         List<UserCoupon> userCoupons = List.of(
-                UserCoupon.builder().id(1L).userId(1L).couponId(1L).build()
-                , UserCoupon.builder().id(2L).userId(1L).couponId(1L).build()
+                UserCoupon.builder().userId(1L).couponId(1L).build()
+                , UserCoupon.builder().userId(1L).couponId(1L).build()
         );
 
         when(userService.findById(userId)).thenReturn(user);
@@ -71,7 +73,7 @@ class UserCouponServiceTest {
     void issue() {
         // given
         User user = User.create("yeop");
-        Coupon coupon = Coupon.create("깜짝 쿠폰", 5000, 3, 50);
+        Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
         UserCoupon userCoupon = UserCoupon.builder().userId(1L).couponId(1L).build();
         UserCouponCommand.Issue command = new UserCouponCommand.Issue(user, coupon);
         when(userCouponRepository.save(any(UserCoupon.class))).thenReturn(userCoupon);
@@ -90,7 +92,7 @@ class UserCouponServiceTest {
         void findByIdSuccess() {
             // given
             Long userCouponId = 1L;
-            UserCoupon userCoupon = UserCoupon.builder().id(1L).couponId(1L).name("깜짝 쿠폰").discountAmount(5000).build();
+            UserCoupon userCoupon = UserCoupon.builder().couponId(1L).name("깜짝 쿠폰").discountAmount(5000).build();
             when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
 
             // when
@@ -121,7 +123,7 @@ class UserCouponServiceTest {
         Long userId = 1L;
         Long userCouponId = 1L;
         UserCoupon userCoupon =
-                UserCoupon.builder().id(1L).userId(userId).couponId(1L)
+                UserCoupon.builder().userId(userId).couponId(1L)
                         .name("깜짝 쿠폰").expiredAt(LocalDate.now()
                                 .plusMonths(3)).discountAmount(5000).build();
         when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
@@ -135,6 +137,27 @@ class UserCouponServiceTest {
         verify(userCouponRepository, times(1)).findById(userCouponId);
     }
 
+    @DisplayName("유효성 검사를 진행한 유저쿠폰 정보를 조회할 수 있다.")
+    @Test
+    void validateAndGetInfo() {
+        // given
+        Long userId = 1L;
+        Long userCouponId = 1L;
+        UserCoupon userCoupon =
+                UserCoupon.builder().userId(userId).couponId(1L)
+                        .name("깜짝 쿠폰").expiredAt(LocalDate.now()
+                                .plusMonths(3)).discountAmount(5000).build();
+        when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
+        UserCouponCommand.Validate command = new UserCouponCommand.Validate(userId, userCouponId);
+
+        // when
+        UserCouponInfo validatedUserCoupon = userCouponService.validateAndGetInfo(command);
+
+        // then
+        assertThat(validatedUserCoupon).isNotNull();
+        verify(userCouponRepository, times(1)).findById(userCouponId);
+    }
+
     @DisplayName("쿠폰 사용처리를 할 수 있다.")
     @Test
     void use() {
@@ -142,7 +165,7 @@ class UserCouponServiceTest {
         Long userId = 1L;
         Long userCouponId = 1L;
         UserCoupon userCoupon =
-                UserCoupon.builder().id(1L).userId(userId).couponId(1L)
+                UserCoupon.builder().userId(userId).couponId(1L)
                         .name("깜짝 쿠폰").expiredAt(LocalDate.now()
                         .plusMonths(3)).discountAmount(5000).build();
         when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));

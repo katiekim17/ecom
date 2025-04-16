@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.InsufficientBalanceException;
 import kr.hhplus.be.server.support.exception.MaximumBalanceException;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,13 @@ public class Point {
 
     public static Point create(User user, int balance) {
         return new Point(user, balance);
+    }
+
+    @Builder
+    public Point(Long id, User user, int balance) {
+        this.id = id;
+        this.user = user;
+        this.balance = balance;
     }
 
     private Point(User user, int balance) {

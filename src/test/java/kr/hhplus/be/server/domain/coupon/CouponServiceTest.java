@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -25,7 +26,7 @@ class CouponServiceTest {
     void find() {
         // given
         Long id = 1L;
-        Coupon coupon = Coupon.create("깜짝 쿠폰", 5000, 3, 10);
+        Coupon coupon = Coupon.create("깜짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 10);
         when(couponRepository.findById(id)).thenReturn(Optional.of(coupon));
 
         // when

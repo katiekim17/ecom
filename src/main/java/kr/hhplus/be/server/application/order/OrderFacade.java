@@ -13,8 +13,8 @@ import kr.hhplus.be.server.domain.product.ProductCommand;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
-import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponCommand;
+import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,10 +40,9 @@ public class OrderFacade {
         DiscountInfo discountInfo = Optional.ofNullable(criteria.userCouponId())
                 .map(userCouponId -> {
                     UserCouponCommand.Validate command = new UserCouponCommand.Validate(criteria.userId(), criteria.userCouponId());
-                    UserCoupon userCoupon = userCouponService.validate(command);
-                    return DiscountInfo.from(userCoupon);
-                })
-                .orElse(DiscountInfo.empty());
+                    UserCouponInfo userCouponinfo = userCouponService.validateAndGetInfo(command);
+                    return DiscountInfo.from(userCouponinfo);
+                }).orElse(DiscountInfo.empty());
 
         List<OrderCommand.OrderLine> orderLines = criteria.orderLines().stream()
                 .map(orderLine -> {

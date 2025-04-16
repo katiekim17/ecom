@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,7 +42,8 @@ public class UserCouponService {
     @Transactional
     public UserCoupon issue(UserCouponCommand.Issue command){
         Coupon coupon = command.coupon();
-        UserCoupon userCoupon = coupon.issueTo(command.user());
+        LocalDate now = LocalDate.now();
+        UserCoupon userCoupon = coupon.issueTo(command.user(), now);
         return userCouponRepository.save(userCoupon);
     }
 
@@ -48,6 +51,12 @@ public class UserCouponService {
         UserCoupon userCoupon = findById(command.userCouponId());
         userCoupon.validate(command.userId());
         return userCoupon;
+    }
+
+    public UserCouponInfo validateAndGetInfo(UserCouponCommand.Validate command) {
+        UserCoupon userCoupon = findById(command.userCouponId());
+        userCoupon.validate(command.userId());
+        return UserCouponInfo.from(userCoupon);
     }
 
     @Transactional

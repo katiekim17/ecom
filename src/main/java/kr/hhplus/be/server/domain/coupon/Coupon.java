@@ -1,12 +1,11 @@
 package kr.hhplus.be.server.domain.coupon;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseEntity;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
+import kr.hhplus.be.server.support.exception.CouponIssueLimitExceededException;
+import kr.hhplus.be.server.support.exception.CouponIssuePeriodException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,38 +21,56 @@ public class Coupon extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    private CouponType type;
+
+    @Enumerated(EnumType.STRING)
+    private DiscountType discountType;
+
     private int discountAmount;
     private int expirationMonth;
+    private LocalDate issueStartDate;
+    private LocalDate issueEndDate;
     private int initialQuantity;
     private int quantity;
 
-    public UserCoupon issueTo(User user) {
-        deductQuantity();
+    public UserCoupon issueTo(User user, LocalDate today) {
+        deductQuantity(today);
 
         return UserCoupon.builder()
                 .couponId(this.id)
                 .userId(user.getId())
                 .name(this.name)
+                .type(this.type)
+                .discountType(this.discountType)
                 .discountAmount(this.discountAmount)
                 .expiredAt(LocalDate.now().plusMonths(this.expirationMonth))
                 .build();
     }
 
-    private void deductQuantity() {
-        if(quantity <= 0){
-            throw new IllegalArgumentException("발급 가능한 수량을 초과하였습니다.");
+    private void deductQuantity(LocalDate today) {
+        if(today.isBefore(issueStartDate) || today.isAfter(issueEndDate)){
+            throw new CouponIssuePeriodException();
+        }else if(quantity < 1) {
+            throw new CouponIssueLimitExceededException();
         }
+
         quantity--;
     }
 
-    public static Coupon create(String name, int discountAmount, int expirationMonth, int initialQuantity) {
-        return new Coupon(name, discountAmount, expirationMonth, initialQuantity, initialQuantity);
+    public static Coupon create(String name, CouponType type, DiscountType discountType, int discountAmount, int expirationMonth, LocalDate issueStartDate, LocalDate issueEndDate, int initialQuantity) {
+        return new Coupon(name, type, discountType, discountAmount, expirationMonth, issueStartDate, issueEndDate, initialQuantity, initialQuantity);
     }
 
-    private Coupon(String name, int discountAmount, int expirationMonth, int initialQuantity, int quantity) {
+    private Coupon(String name, CouponType type, DiscountType discountType, int discountAmount, int expirationMonth, LocalDate issueStartDate, LocalDate issueEndDate, int initialQuantity, int quantity) {
         this.name = name;
+        this.type = type;
+        this.discountType = discountType;
         this.discountAmount = discountAmount;
         this.expirationMonth = expirationMonth;
+        this.issueStartDate = issueStartDate;
+        this.issueEndDate = issueEndDate;
         this.initialQuantity = initialQuantity;
         this.quantity = quantity;
     }

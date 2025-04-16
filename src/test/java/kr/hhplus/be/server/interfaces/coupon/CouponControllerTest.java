@@ -70,7 +70,6 @@ class CouponControllerTest {
         Long userId = 1L;
         UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(userId, 1, 10);
         UserCoupon userCoupon = UserCoupon.builder()
-                .id(1L)
                 .userId(userId)
                 .couponId(1L)
                 .name("4월 반짝 쿠폰")
