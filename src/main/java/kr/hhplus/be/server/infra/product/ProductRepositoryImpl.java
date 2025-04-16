@@ -40,6 +40,4 @@ public class ProductRepositoryImpl implements ProductRepository {
     public List<Product> saveAll(List<Product> products) {
         return jpaProductRepository.saveAll(products);
     }
-
-
 }
