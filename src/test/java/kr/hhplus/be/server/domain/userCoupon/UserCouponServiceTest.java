@@ -116,27 +116,6 @@ class UserCouponServiceTest {
         }
     }
 
-    @DisplayName("userId와 userCouponId를 통해 validation을 수행한 userCoupon을 조회할 수 있다.")
-    @Test
-    void validate() {
-        // given
-        Long userId = 1L;
-        Long userCouponId = 1L;
-        UserCoupon userCoupon =
-                UserCoupon.builder().userId(userId).couponId(1L)
-                        .name("깜짝 쿠폰").expiredAt(LocalDate.now()
-                                .plusMonths(3)).discountAmount(5000).build();
-        when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
-        UserCouponCommand.Validate command = new UserCouponCommand.Validate(userId, userCouponId);
-
-        // when
-        UserCoupon validate = userCouponService.validate(command);
-
-        // then
-        assertThat(validate).isNotNull();
-        verify(userCouponRepository, times(1)).findById(userCouponId);
-    }
-
     @DisplayName("유효성 검사를 진행한 유저쿠폰 정보를 조회할 수 있다.")
     @Test
     void validateAndGetInfo() {

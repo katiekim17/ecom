@@ -45,12 +45,6 @@ public class UserCouponService {
         return userCouponRepository.save(userCoupon);
     }
 
-    public UserCoupon validate(UserCouponCommand.Validate command) {
-        UserCoupon userCoupon = findById(command.userCouponId());
-        userCoupon.validate(command.userId());
-        return userCoupon;
-    }
-
     public UserCouponInfo validateAndGetInfo(UserCouponCommand.Validate command) {
         if(command.isEmptyCoupon()){
             return UserCouponInfo.empty();

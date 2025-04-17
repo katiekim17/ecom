@@ -124,7 +124,7 @@ class UserCouponServiceIntegrationTest {
         UserCouponCommand.Validate command = new UserCouponCommand.Validate(userId, userCouponId);
         // when
 
-        UserCoupon validate = userCouponService.validate(command);
+        UserCouponInfo validate = userCouponService.validateAndGetInfo(command);
 
         // then
         assertThat(validate).isEqualTo(savedUserCoupon);
