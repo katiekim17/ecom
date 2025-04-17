@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,11 +21,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public void deleteAllInBatch() {
-        jpaProductRepository.deleteAllInBatch();
-    }
-
-    @Override
     public Page<Product> findAll(Pageable pageable) {
         return jpaProductRepository.findAll(pageable);
     }
@@ -34,10 +28,5 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Product save(Product product) {
         return jpaProductRepository.save(product);
-    }
-
-    @Override
-    public List<Product> saveAll(List<Product> products) {
-        return jpaProductRepository.saveAll(products);
     }
 }

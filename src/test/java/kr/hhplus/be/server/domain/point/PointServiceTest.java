@@ -39,7 +39,7 @@ class PointServiceTest {
             Point point = pointService.find(userId);
 
             // then
-            assertThat(point.getUser()).isEqualTo(user);
+            assertThat(point.getUserId()).isEqualTo(user.getId());
             assertThat(point.getBalance()).isEqualTo(0);
             verify(pointRepository, times(1)).findByUserId(userId);
         }

@@ -17,14 +17,4 @@ public class CouponRepositoryImpl implements CouponRepository {
     public Optional<Coupon> findById(Long id) {
         return jpaCouponRepository.findById(id);
     }
-
-    @Override
-    public Coupon save(Coupon coupon) {
-        return jpaCouponRepository.save(coupon);
-    }
-
-    @Override
-    public void deleteAllInBatch() {
-        jpaCouponRepository.deleteAllInBatch();
-    }
 }

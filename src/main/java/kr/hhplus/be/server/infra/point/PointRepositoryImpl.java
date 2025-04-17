@@ -17,13 +17,4 @@ public class PointRepositoryImpl implements PointRepository {
     public Optional<Point> findByUserId(Long userId) {
         return jpaPointRepository.findByUserId(userId);
     }
-
-    public void deleteAllInBatch() {
-        jpaPointRepository.deleteAllInBatch();
-    }
-
-    @Override
-    public Point save(Point point) {
-        return jpaPointRepository.save(point);
-    }
 }

@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,23 +21,8 @@ public class UserCouponRepositoryImpl implements UserCouponRepository {
     }
 
     @Override
-    public List<UserCoupon> saveAll(List<UserCoupon> userCoupons) {
-        return jpaUserCouponRepository.saveAll(userCoupons);
-    }
-
-    @Override
     public Page<UserCoupon> findAllByUserId(Long userId, Pageable pageable) {
         return jpaUserCouponRepository.findAllByUserId(userId, pageable);
-    }
-
-    @Override
-    public void deleteAllInBatch() {
-        jpaUserCouponRepository.deleteAllInBatch();
-    }
-
-    @Override
-    public Optional<UserCoupon> findByUserIdAndCouponId(Long userId, Long couponId) {
-        return jpaUserCouponRepository.findByUserIdAndCouponId(userId, couponId);
     }
 
     @Override

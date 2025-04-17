@@ -1,39 +1,35 @@
 package kr.hhplus.be.server.domain.point;
 
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserRepository;
-import org.junit.jupiter.api.AfterEach;
+import kr.hhplus.be.server.infra.point.JpaPointRepository;
+import kr.hhplus.be.server.infra.user.JpaUserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Transactional
 class PointServiceIntegrationTest {
 
     @Autowired
     private PointService pointService;
 
     @Autowired
-    private PointRepository pointRepository;
+    private JpaPointRepository jpaPointRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @AfterEach
-    void tearDown() {
-        pointRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
-    }
+    private JpaUserRepository jpaUserRepository;
 
     @DisplayName("userId로 해당 유저가 보유한 포인트를 조회할 수 있다.")
     @Test
     void find() {
         // given
-        User savedUser = userRepository.save(User.create("user"));
-        pointRepository.save(Point.create(savedUser, 0));
+        User savedUser = jpaUserRepository.save(User.create("user"));
+        jpaPointRepository.save(Point.create(savedUser, 0));
         // when
         Point findPoint = pointService.find(savedUser.getId());
         // then
@@ -44,8 +40,8 @@ class PointServiceIntegrationTest {
     @Test
     void charge() {
         // given
-        User savedUser = userRepository.save(User.create("user"));
-        pointRepository.save(Point.create(savedUser, 0));
+        User savedUser = jpaUserRepository.save(User.create("user"));
+        jpaPointRepository.save(Point.create(savedUser, 0));
         int amount = 10;
         PointCommand.Charge command = new PointCommand.Charge(savedUser.getId(), amount);
 
@@ -60,8 +56,8 @@ class PointServiceIntegrationTest {
     @Test
     void use() {
         // given
-        User savedUser = userRepository.save(User.create("user"));
-        pointRepository.save(Point.create(savedUser, 10));
+        User savedUser = jpaUserRepository.save(User.create("user"));
+        jpaPointRepository.save(Point.create(savedUser, 10));
         int amount = 10;
         PointCommand.Use command = new PointCommand.Use(savedUser.getId(), amount);
         // when

@@ -2,16 +2,16 @@ package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductInfo;
-import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
-import kr.hhplus.be.server.infra.order.JpaOrderProductRepository;
-import org.junit.jupiter.api.AfterEach;
+import kr.hhplus.be.server.infra.order.JpaOrderRepository;
+import kr.hhplus.be.server.infra.product.JpaProductRepository;
+import kr.hhplus.be.server.infra.user.JpaUserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 @SpringBootTest
+@Transactional
 class OrderServiceIntegrationTest {
 
     @Autowired
@@ -28,34 +29,27 @@ class OrderServiceIntegrationTest {
     private OrderRepository orderRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private JpaOrderRepository jpaOrderRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private JpaUserRepository jpaUserRepository;
 
     @Autowired
-    private JpaOrderProductRepository jpaOrderProductRepository;
-
-    @AfterEach
-    void tearDown() {
-        jpaOrderProductRepository.deleteAllInBatch();
-        orderRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
-    }
+    private JpaProductRepository jpaProductRepository;
 
     @DisplayName("주문을 요청하면 생성 후 저장되며, orderProduct도 저장된다.")
     @Test
     void order() {
         // given
         User user = User.create("user");
-        User savedUser = userRepository.save(user);
+        User savedUser = jpaUserRepository.save(user);
 
         UserCouponInfo userCouponInfo = UserCouponInfo.empty();
 
         ProductInfo product1 =
-                ProductInfo.from(productRepository.save(Product.create("사과", 50, 5000)));
+                ProductInfo.from(jpaProductRepository.save(Product.create("사과", 50, 5000)));
         ProductInfo product2 =
-                ProductInfo.from(productRepository.save(Product.create("배", 50, 4000)));
+                ProductInfo.from(jpaProductRepository.save(Product.create("배", 50, 4000)));
 
 
         List<OrderCommand.OrderLine> orderLines = List.of(
@@ -69,7 +63,7 @@ class OrderServiceIntegrationTest {
         Order order = orderService.order(command);
 
         // then
-        Order savedOrder = orderRepository.findById(order.getId())
+        Order savedOrder = jpaOrderRepository.findById(order.getId())
                 .orElse(null);
         assertThat(savedOrder).isNotNull();
         assertThat(savedOrder.getId()).isEqualTo(order.getId());

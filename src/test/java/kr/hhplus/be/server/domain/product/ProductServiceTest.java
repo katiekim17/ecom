@@ -126,15 +126,13 @@ class ProductServiceTest {
             Product findProduct = Product.create("사과", stock, 5000);
 
             when(productRepository.find(productId)).thenReturn(Optional.of(findProduct));
-            when(productRepository.save(findProduct)).thenReturn(findProduct);
 
             // when
-            Product deductedProduct = productService.deductStock(new ProductCommand.DeductStock(productId, amount));
+            ProductInfo deductedProduct = productService.deductStock(new ProductCommand.DeductStock(productId, amount));
 
             // then
-            assertThat(deductedProduct.getStock()).isEqualTo(stock - amount);
+            assertThat(deductedProduct.stock()).isEqualTo(stock - amount);
             verify(productRepository, times(1)).find(productId);
-            verify(productRepository, times(1)).save(findProduct);
         }
     }
 

@@ -1,12 +1,13 @@
 package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.common.PageResult;
-import org.junit.jupiter.api.AfterEach;
+import kr.hhplus.be.server.infra.product.JpaProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,18 +15,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 @SpringBootTest
+@Transactional
 class ProductServiceIntegrationTest {
 
     @Autowired
     private ProductService productService;
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @AfterEach
-    void tearDown() {
-        productRepository.deleteAllInBatch();
-    }
+    private JpaProductRepository jpaProductRepository;
 
     @Nested
     class find {
@@ -35,7 +32,7 @@ class ProductServiceIntegrationTest {
         void singleFind() {
             // given
             Product product = Product.create("사과", 50, 1000);
-            Product savedProduct = productRepository.save(product);
+            Product savedProduct = jpaProductRepository.save(product);
 
             // when
             Product findProduct = productService.find(savedProduct.getId());
@@ -53,7 +50,7 @@ class ProductServiceIntegrationTest {
             // given
             int page = 1;
             int size = 10;
-            productRepository.saveAll(
+            jpaProductRepository.saveAll(
                     List.of(
                             Product.create("사과", 30, 1000)
                             , Product.create("배", 40, 2000)
@@ -84,7 +81,7 @@ class ProductServiceIntegrationTest {
     void validatePurchase() {
         // given
         Product product = Product.create("사과", 50, 1000);
-        Product savedProduct = productRepository.save(product);
+        Product savedProduct = jpaProductRepository.save(product);
         Long productId = savedProduct.getId();
         int quantity = 3;
 
@@ -99,16 +96,17 @@ class ProductServiceIntegrationTest {
     @Test
     void deductStock() {
         // given
-        Product product = Product.create("사과", 50, 1000);
-        Product savedProduct = productRepository.save(product);
+        int originalStock = 50;
+        Product product = Product.create("사과", originalStock, 1000);
+        Product savedProduct = jpaProductRepository.save(product);
         Long productId = savedProduct.getId();
         int quantity = 3;
 
         // when
         ProductCommand.DeductStock command = new ProductCommand.DeductStock(productId, quantity);
-        Product deductedStockProduct = productService.deductStock(command);
+        ProductInfo deductedStockProduct = productService.deductStock(command);
 
         // then
-        assertThat(deductedStockProduct.getStock()).isEqualTo(product.getStock() - quantity);
+        assertThat(deductedStockProduct.stock()).isEqualTo(originalStock - quantity);
     }
 }

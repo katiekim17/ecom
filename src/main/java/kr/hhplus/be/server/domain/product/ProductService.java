@@ -37,11 +37,11 @@ public class ProductService {
         return ProductInfo.from(product);
     }
 
-    public Product deductStock(ProductCommand.DeductStock command) {
+    public ProductInfo deductStock(ProductCommand.DeductStock command) {
 
         Product product = find(command.productId());
         product.deductStock(command.quantity());
 
-        return productRepository.save(product);
+        return ProductInfo.from(product);
     }
 }

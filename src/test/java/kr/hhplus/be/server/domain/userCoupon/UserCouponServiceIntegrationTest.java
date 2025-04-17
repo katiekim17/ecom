@@ -2,16 +2,17 @@ package kr.hhplus.be.server.domain.userCoupon;
 
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.coupon.CouponType;
 import kr.hhplus.be.server.domain.coupon.DiscountType;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserRepository;
-import org.junit.jupiter.api.AfterEach;
+import kr.hhplus.be.server.infra.coupon.JpaCouponRepository;
+import kr.hhplus.be.server.infra.user.JpaUserRepository;
+import kr.hhplus.be.server.infra.userCoupon.JpaUserCouponRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @SpringBootTest
+@Transactional
 class UserCouponServiceIntegrationTest {
 
     @Autowired
@@ -29,17 +31,13 @@ class UserCouponServiceIntegrationTest {
     private UserCouponRepository userCouponRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private JpaUserCouponRepository jpaUserCouponRepository;
 
     @Autowired
-    private CouponRepository couponRepository;
+    private JpaUserRepository jpaUserRepository;
 
-    @AfterEach
-    void tearDown() {
-        userCouponRepository.deleteAllInBatch();
-        couponRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
-    }
+    @Autowired
+    private JpaCouponRepository jpaCouponRepository;
 
     // 단건 조회
     @DisplayName("id로 해당하는 userCoupon을 조회할 수 있다.")
@@ -64,10 +62,10 @@ class UserCouponServiceIntegrationTest {
     void findAll() {
         // given
         User user = User.create("yeop");
-        User savedUser = userRepository.save(user);
+        User savedUser = jpaUserRepository.save(user);
         Long userId = savedUser.getId();
 
-        userCouponRepository.saveAll(List.of(
+        jpaUserCouponRepository.saveAll(List.of(
                 createUserCoupon(userId, 1L, "깜짝쿠폰1", 3000)
                 , createUserCoupon(userId, 1L, "깜짝쿠폰2", 4000)
                 , createUserCoupon(userId, 1L, "깜짝쿠폰3", 5000)));
@@ -93,10 +91,10 @@ class UserCouponServiceIntegrationTest {
     void issue() {
         // given
         User user = User.create("yeop");
-        User savedUser = userRepository.save(user);
+        User savedUser = jpaUserRepository.save(user);
 
         Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
-        Coupon savedCoupon = couponRepository.save(coupon);
+        Coupon savedCoupon = jpaCouponRepository.save(coupon);
 
         // when
         UserCouponCommand.Issue command = new UserCouponCommand.Issue(savedUser, coupon);
@@ -118,7 +116,7 @@ class UserCouponServiceIntegrationTest {
     void validate() {
         // given
         User user = User.create("yeop");
-        User savedUser = userRepository.save(user);
+        User savedUser = jpaUserRepository.save(user);
         UserCoupon userCoupon = createUserCoupon(savedUser.getId(), 1L, "깜짝쿠폰", 5000);
         UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
         Long userId = savedUser.getId();
@@ -137,7 +135,7 @@ class UserCouponServiceIntegrationTest {
     void use() {
         // given
         User user = User.create("yeop");
-        User savedUser = userRepository.save(user);
+        User savedUser = jpaUserRepository.save(user);
         UserCoupon userCoupon = createUserCoupon(savedUser.getId(), 1L, "깜짝쿠폰", 5000);
         UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
         Long userId = savedUser.getId();

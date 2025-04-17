@@ -19,11 +19,6 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void deleteAllInBatch() {
-        jpaOrderRepository.deleteAllInBatch();
-    }
-
-    @Override
     public Optional<Order> findById(Long id) {
         return jpaOrderRepository.findByIdWithItems(id);
     }
