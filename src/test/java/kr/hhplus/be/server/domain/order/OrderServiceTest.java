@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -30,7 +30,7 @@ class OrderServiceTest {
     void order() {
         // given
         User user = User.create("yeop");
-        Product product = Product.create( "사과", 50, 5000);
+        ProductInfo product = ProductInfo.from(Product.create( "사과", 50, 5000));
         List<OrderCommand.OrderLine> orderLines =
                 List.of(new OrderCommand.OrderLine(product, 1));
 
@@ -43,20 +43,6 @@ class OrderServiceTest {
 
         // then
         verify(orderRepository, times(1)).save(any(Order.class));
-    }
-
-    @DisplayName("완료 요청 시 Order의 status가 COMPLEATE가 된다.")
-    @Test
-    void complete() {
-        // given
-        User user = User.create("yeop");
-        Order order = Order.create(user);
-
-        // when
-        orderService.complete(order);
-
-        // then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
 }

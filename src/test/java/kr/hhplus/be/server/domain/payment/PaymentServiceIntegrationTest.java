@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.order.OrderRepository;
 import kr.hhplus.be.server.domain.point.Point;
 import kr.hhplus.be.server.domain.point.PointRepository;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserRepository;
@@ -49,8 +50,8 @@ class PaymentServiceIntegrationTest {
         // given
         User user = userRepository.save(User.create("yeop"));
         pointRepository.save(Point.create(user, 5000));
-        Product product = productRepository.save(Product.create("사과", 50, 5000));
-        OrderProduct orderProduct = OrderProduct.create(product, 1);
+        ProductInfo productInfo = ProductInfo.from(productRepository.save(Product.create("사과", 50, 5000)));
+        OrderProduct orderProduct = OrderProduct.create(productInfo, 1);
         Order order = Order.create(user);
         order.addOrderProduct(orderProduct);
         Order savedOrder = orderRepository.save(order);

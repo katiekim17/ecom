@@ -29,10 +29,12 @@ public class ProductService {
         return PageResult.create(page.getContent(), command.pageNo(), command.pageSize(), page.getTotalElements());
     }
 
-    public Product validatePurchase(ProductCommand.ValidatePurchase command){
+
+
+    public ProductInfo validatePurchase(ProductCommand.ValidatePurchase command){
         Product product = find(command.productId());
         product.validatePurchasable(command.quantity());
-        return product;
+        return ProductInfo.from(product);
     }
 
     public Product deductStock(ProductCommand.DeductStock command) {

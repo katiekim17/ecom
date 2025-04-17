@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserRepository;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -52,8 +52,10 @@ class OrderServiceIntegrationTest {
 
         UserCouponInfo userCouponInfo = UserCouponInfo.empty();
 
-        Product product1 = productRepository.save(Product.create("사과", 50, 5000));
-        Product product2 = productRepository.save(Product.create("배", 50, 4000));
+        ProductInfo product1 =
+                ProductInfo.from(productRepository.save(Product.create("사과", 50, 5000)));
+        ProductInfo product2 =
+                ProductInfo.from(productRepository.save(Product.create("배", 50, 4000)));
 
 
         List<OrderCommand.OrderLine> orderLines = List.of(
@@ -72,7 +74,7 @@ class OrderServiceIntegrationTest {
         assertThat(savedOrder).isNotNull();
         assertThat(savedOrder.getId()).isEqualTo(order.getId());
         assertThat(savedOrder.getOrderAmount()).isEqualTo(13000);
-        assertThat(savedOrder.getStatus()).isEqualTo(OrderStatus.PENDING);
+        assertThat(savedOrder.getStatus()).isEqualTo(OrderStatus.SUCCESS);
 
         List<OrderProduct> orderProducts = savedOrder.getOrderProducts();
         assertThat(orderProducts).hasSize(2);
@@ -81,26 +83,6 @@ class OrderServiceIntegrationTest {
                         tuple(5000, 1),
                         tuple(4000, 2)
                 );
-    }
-
-    @Transactional
-    @DisplayName("order의 상태를 주문 완료로 변경할 수 있다.")
-    @Test
-    void complete() {
-        // given
-        User user = userRepository.save(User.create("yeop"));
-        Product product1 = productRepository.save(Product.create("사과", 50, 5000));
-        Order order = Order.create(user);
-        order.addOrderProduct(OrderProduct.create(product1, 1));
-        Order savedOrder = orderRepository.save(order);
-
-        // when
-        orderService.complete(savedOrder);
-
-        // then
-        Order findOrder = orderRepository.findById(savedOrder.getId()).orElse(null);
-        assertThat(findOrder).isNotNull();
-        assertThat(findOrder.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
 }

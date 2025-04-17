@@ -90,9 +90,9 @@ class ProductServiceIntegrationTest {
 
         // when
         ProductCommand.ValidatePurchase command = new ProductCommand.ValidatePurchase(productId, quantity);
-        Product validatedPurchase = productService.validatePurchase(command);
+        ProductInfo validatedPurchase = productService.validatePurchase(command);
         // then
-        assertThat(validatedPurchase.getId()).isEqualTo(productId);
+        assertThat(validatedPurchase.id()).isEqualTo(productId);
     }
 
     @DisplayName("재고가 유효하여 차감할 수 있는 상품인 경우 차감 후 상품 정보를 반환한다.")

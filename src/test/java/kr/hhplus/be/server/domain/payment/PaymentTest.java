@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.payment;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,8 +40,8 @@ class PaymentTest {
     }
 
 
-    private static Product makeProduct(int price) {
-        return Product.create("사과", 50, price);
+    private static ProductInfo makeProduct(int price) {
+        return ProductInfo.from(Product.create("사과", 50, price));
     }
 
 }

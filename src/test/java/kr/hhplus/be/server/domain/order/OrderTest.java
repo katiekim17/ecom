@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
@@ -29,7 +30,7 @@ class OrderTest {
     @Test
     void addOrderProduct() {
         // given
-        OrderProduct orderProduct = OrderProduct.create(makeProduct(1000), 1);
+        OrderProduct orderProduct = OrderProduct.create(makeProductInfo(1000), 1);
         Order order = Order.create(User.create("yeop"));
 
         // when
@@ -48,8 +49,8 @@ class OrderTest {
             int firstPrice = 5000;
             int secondPrice = 6000;
 
-            OrderProduct orderProduct = OrderProduct.create(makeProduct(firstPrice), 1);
-            OrderProduct orderProduct2 = OrderProduct.create(makeProduct(secondPrice), 1);
+            OrderProduct orderProduct = OrderProduct.create(makeProductInfo(firstPrice), 1);
+            OrderProduct orderProduct2 = OrderProduct.create(makeProductInfo(secondPrice), 1);
 
             Order order = Order.create(User.create("yeop"));
 
@@ -69,7 +70,7 @@ class OrderTest {
             int price = 5000;
             int discountAmount = 3000;
             UserCouponInfo couponInfo = UserCouponInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
-            OrderProduct orderProduct = OrderProduct.create(makeProduct(price), 1);
+            OrderProduct orderProduct = OrderProduct.create(makeProductInfo(price), 1);
 
             Order order = Order.create(User.create("yeop"));
             order.addOrderProduct(orderProduct);
@@ -89,7 +90,7 @@ class OrderTest {
             int price = 5000;
             int discountAmount = 6000;
             UserCouponInfo couponInfo = UserCouponInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
-            OrderProduct orderProduct = OrderProduct.create(makeProduct(price), 1);
+            OrderProduct orderProduct = OrderProduct.create(makeProductInfo(price), 1);
 
             Order order = Order.create(User.create("yeop"));
             order.addOrderProduct(orderProduct);
@@ -116,7 +117,7 @@ class OrderTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
-    private static Product makeProduct( int price) {
-        return Product.create( "사과", 50, price);
+    private static ProductInfo makeProductInfo(int price) {
+        return ProductInfo.from(Product.create( "사과", 50, price));
     }
 }

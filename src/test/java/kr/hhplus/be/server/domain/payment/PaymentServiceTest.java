@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.point.Point;
 import kr.hhplus.be.server.domain.point.PointCommand;
 import kr.hhplus.be.server.domain.point.PointService;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class PaymentServiceTest {
         User user = User.create("yeop");
 
         Order order = Order.create(user);
-        order.addOrderProduct(OrderProduct.create(Product.create("사과", 50, 5000), 2));
+        order.addOrderProduct(OrderProduct.create(ProductInfo.from(Product.create("사과", 50, 5000)), 2));
 
         PointCommand.Use command = new PointCommand.Use(1L, 10000);
         Point usedPoint = Point.create(user, 0);

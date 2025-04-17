@@ -7,8 +7,7 @@ import kr.hhplus.be.server.domain.order.OrderService;
 import kr.hhplus.be.server.domain.payment.Payment;
 import kr.hhplus.be.server.domain.payment.PaymentCommand;
 import kr.hhplus.be.server.domain.payment.PaymentService;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductCommand;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
@@ -40,12 +39,10 @@ public class OrderFacade {
         UserCouponCommand.Validate couponCommand = new UserCouponCommand.Validate(criteria.userId(), criteria.userCouponId());
         UserCouponInfo userCouponInfo = userCouponService.validateAndGetInfo(couponCommand);
 
-        // TODO 로직 안으로 숨기기
-        List<OrderCommand.OrderLine> orderLines = criteria.orderLines().stream()
-                .map(orderLine -> {
-                    ProductCommand.ValidatePurchase command = new ProductCommand.ValidatePurchase(orderLine.productId(), orderLine.quantity());
-                    Product product = productService.validatePurchase(command);
-                    return new OrderCommand.OrderLine(product, orderLine.quantity());
+        List<OrderCommand.OrderLine> orderLines = criteria.orderItems().stream()
+                .map(orderItem -> {
+                    ProductInfo productInfo = productService.validatePurchase(orderItem.toValidateCommand());
+                    return new OrderCommand.OrderLine(productInfo, orderItem.quantity());
                 }).toList();
 
         OrderCommand.Create orderCommand = new OrderCommand.Create(user, userCouponInfo, orderLines);
@@ -53,21 +50,15 @@ public class OrderFacade {
 
         PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(order, criteria.userId());
         Payment payment = paymentService.pay(paymentCommand);
-        Order completedOrder = orderService.complete(order);
 
-        // TODO 로직 안으로 숨기기
-        order.getOrderProducts()
-                .forEach(orderProduct -> {
-                    ProductCommand.DeductStock command = new ProductCommand.DeductStock(orderProduct.getProductId(), orderProduct.getQuantity());
-                    productService.deductStock(command);
-                });
+        criteria.orderItems().forEach(orderItem -> productService.deductStock(orderItem.toDeductCommand()));
 
         UserCouponCommand.Use command = new UserCouponCommand.Use(criteria.userId(), criteria.userCouponId());
         userCouponService.use(command);
 
         return new OrderResult(
-                completedOrder.getId(), payment.getId(),
-                completedOrder.getOrderAmount(), payment.getTotalAmount());
+                order.getId(), payment.getId(),
+                order.getOrderAmount(), payment.getTotalAmount());
     }
 
 }
