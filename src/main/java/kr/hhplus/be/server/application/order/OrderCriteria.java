@@ -11,10 +11,6 @@ public record OrderCriteria(
             List<OrderLine> orderLines
     ) {
 
-        public boolean hasCoupon() {
-            return null != userCouponId;
-        }
-
         public record OrderLine(
                 Long productId,
                 int quantity

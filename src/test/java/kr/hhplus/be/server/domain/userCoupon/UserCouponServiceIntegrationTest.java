@@ -142,14 +142,13 @@ class UserCouponServiceIntegrationTest {
         UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
         Long userId = savedUser.getId();
         Long userCouponId = savedUserCoupon.getId();
-        UserCouponCommand.Use command = new UserCouponCommand.Use(userId, userCouponId, 1L);
+        UserCouponCommand.Use command = new UserCouponCommand.Use(userId, userCouponId);
 
         // when
-        UserCoupon usedUserCoupon = userCouponService.use(command);
+        UserCouponInfo usedUserCoupon = userCouponService.use(command);
 
         // then
-        assertThat(usedUserCoupon.isUsed()).isTrue();
-        assertThat(usedUserCoupon.getOrderId()).isNotNull();
+        assertThat(usedUserCoupon.usedAt()).isNotNull();
     }
 
     private UserCoupon createUserCoupon(Long userId, Long couponId, String name, int discountAmount) {

@@ -54,17 +54,23 @@ public class UserCouponService {
     }
 
     public UserCouponInfo validateAndGetInfo(UserCouponCommand.Validate command) {
+        if(command.isEmptyCoupon()){
+            return UserCouponInfo.empty();
+        }
+
         UserCoupon userCoupon = findById(command.userCouponId());
         userCoupon.validate(command.userId());
         return UserCouponInfo.from(userCoupon);
     }
 
     @Transactional
-    public UserCoupon use(UserCouponCommand.Use command) {
+    public UserCouponInfo use(UserCouponCommand.Use command) {
+        if(command.isEmptyCoupon()){
+            return UserCouponInfo.empty();
+        }
 
         UserCoupon userCoupon = findById(command.userCouponId());
-        userCoupon.use(command.userId(), command.orderId());
-
-        return userCouponRepository.save(userCoupon);
+        userCoupon.use(command.userId());
+        return UserCouponInfo.from(userCoupon);
     }
 }

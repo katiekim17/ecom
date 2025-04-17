@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
 
-import kr.hhplus.be.server.domain.order.DiscountInfo;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderCommand;
 import kr.hhplus.be.server.domain.order.OrderService;
@@ -18,9 +17,9 @@ import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,17 +32,15 @@ public class OrderFacade {
     private final PaymentService paymentService;
 
 
+    @Transactional
     public OrderResult order(OrderCriteria.Create criteria) {
 
         User user = userService.findById(criteria.userId());
 
-        DiscountInfo discountInfo = Optional.ofNullable(criteria.userCouponId())
-                .map(userCouponId -> {
-                    UserCouponCommand.Validate command = new UserCouponCommand.Validate(criteria.userId(), criteria.userCouponId());
-                    UserCouponInfo userCouponinfo = userCouponService.validateAndGetInfo(command);
-                    return DiscountInfo.from(userCouponinfo);
-                }).orElse(DiscountInfo.empty());
+        UserCouponCommand.Validate couponCommand = new UserCouponCommand.Validate(criteria.userId(), criteria.userCouponId());
+        UserCouponInfo userCouponInfo = userCouponService.validateAndGetInfo(couponCommand);
 
+        // TODO 로직 안으로 숨기기
         List<OrderCommand.OrderLine> orderLines = criteria.orderLines().stream()
                 .map(orderLine -> {
                     ProductCommand.ValidatePurchase command = new ProductCommand.ValidatePurchase(orderLine.productId(), orderLine.quantity());
@@ -51,24 +48,22 @@ public class OrderFacade {
                     return new OrderCommand.OrderLine(product, orderLine.quantity());
                 }).toList();
 
-        OrderCommand.Create orderCommand = new OrderCommand.Create(user, discountInfo, orderLines);
+        OrderCommand.Create orderCommand = new OrderCommand.Create(user, userCouponInfo, orderLines);
         Order order = orderService.order(orderCommand);
 
         PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(order, criteria.userId());
         Payment payment = paymentService.pay(paymentCommand);
         Order completedOrder = orderService.complete(order);
 
+        // TODO 로직 안으로 숨기기
         order.getOrderProducts()
                 .forEach(orderProduct -> {
-                    ProductCommand.DeductStock command = new ProductCommand.DeductStock(orderProduct.getProduct().getId(), orderProduct.getQuantity());
+                    ProductCommand.DeductStock command = new ProductCommand.DeductStock(orderProduct.getProductId(), orderProduct.getQuantity());
                     productService.deductStock(command);
                 });
 
-        Optional.ofNullable(criteria.userCouponId())
-                .ifPresent(id -> {
-                    UserCouponCommand.Use command = new UserCouponCommand.Use(criteria.userId(), criteria.userCouponId(), order.getId());
-                    userCouponService.use(command);
-                });
+        UserCouponCommand.Use command = new UserCouponCommand.Use(criteria.userId(), criteria.userCouponId());
+        userCouponService.use(command);
 
         return new OrderResult(
                 completedOrder.getId(), payment.getId(),

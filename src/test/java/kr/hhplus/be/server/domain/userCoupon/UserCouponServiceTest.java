@@ -169,16 +169,15 @@ class UserCouponServiceTest {
                         .name("깜짝 쿠폰").expiredAt(LocalDate.now()
                         .plusMonths(3)).discountAmount(5000).build();
         when(userCouponRepository.findById(userCouponId)).thenReturn(Optional.of(userCoupon));
-        when(userCouponRepository.save(userCoupon)).thenReturn(userCoupon);
-        UserCouponCommand.Use command = new UserCouponCommand.Use(userId, userCouponId, 1L);
+        UserCouponCommand.Use command = new UserCouponCommand.Use(userId, userCouponId);
 
         // when
-        UserCoupon usedUserCoupon = userCouponService.use(command);
+        UserCouponInfo usedUserCoupon = userCouponService.use(command);
 
         // then
         assertThat(usedUserCoupon).isNotNull();
+        assertThat(usedUserCoupon.usedAt()).isNotNull();
         verify(userCouponRepository, times(1)).findById(userCouponId);
-        verify(userCouponRepository, times(1)).save(userCoupon);
     }
 
 }

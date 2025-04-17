@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.payment;
 
-import kr.hhplus.be.server.domain.order.DiscountInfo;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.order.OrderRepository;
@@ -52,9 +51,8 @@ class PaymentServiceIntegrationTest {
         pointRepository.save(Point.create(user, 5000));
         Product product = productRepository.save(Product.create("사과", 50, 5000));
         OrderProduct orderProduct = OrderProduct.create(product, 1);
-        Order order = Order.create(user, DiscountInfo.empty());
+        Order order = Order.create(user);
         order.addOrderProduct(orderProduct);
-        order.calculateTotalAmount();
         Order savedOrder = orderRepository.save(order);
 
         // when

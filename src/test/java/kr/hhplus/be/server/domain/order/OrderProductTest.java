@@ -19,6 +19,7 @@ class OrderProductTest {
 
         // then
         assertThat(orderProduct.getPrice()).isEqualTo(product.getPrice());
+        assertThat(orderProduct.getName()).isEqualTo(product.getName());
     }
 
 }

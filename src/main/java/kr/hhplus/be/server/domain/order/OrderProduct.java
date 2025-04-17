@@ -13,15 +13,17 @@ public class OrderProduct {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Product product;
+    private Long productId;
+
+    private String name;
 
     private int price;
 
     private int quantity;
 
-    public OrderProduct(Product product, int quantity) {
-        this.product = product;
+    private OrderProduct(Product product, int quantity) {
+        this.productId = product.getId();
+        this.name = product.getName();
         this.price = product.getPrice();
         this.quantity = quantity;
     }

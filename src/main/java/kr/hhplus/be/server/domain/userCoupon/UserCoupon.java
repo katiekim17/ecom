@@ -23,7 +23,6 @@ public class UserCoupon extends BaseEntity {
     private Long id;
     private Long userId;
     private Long couponId;
-    private Long orderId;
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -39,11 +38,10 @@ public class UserCoupon extends BaseEntity {
     private LocalDate expiredAt;
 
     @Builder
-    private UserCoupon(Long userId, Long couponId, Long orderId, String name, CouponType type,
+    private UserCoupon(Long userId, Long couponId, String name, CouponType type,
                        DiscountType discountType, int discountAmount, LocalDateTime usedAt, LocalDate expiredAt) {
         this.userId = userId;
         this.couponId = couponId;
-        this.orderId = orderId;
         this.name = name;
         this.type = type;
         this.discountType = discountType;
@@ -79,9 +77,8 @@ public class UserCoupon extends BaseEntity {
         return LocalDate.now().isAfter(this.expiredAt);
     }
 
-    public void use(Long userId, Long orderId) {
+    public void use(Long userId) {
         validate(userId);
-        this.orderId = orderId;
         this.usedAt = LocalDateTime.now();
     }
 

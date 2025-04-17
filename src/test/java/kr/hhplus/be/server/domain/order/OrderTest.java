@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.order;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
+import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ class OrderTest {
         User user = User.create("yeop");
 
         // when
-        Order order = Order.create(user, DiscountInfo.empty());
+        Order order = Order.create(user);
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
@@ -29,7 +30,7 @@ class OrderTest {
     void addOrderProduct() {
         // given
         OrderProduct orderProduct = OrderProduct.create(makeProduct(1000), 1);
-        Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
+        Order order = Order.create(User.create("yeop"));
 
         // when
         order.addOrderProduct(orderProduct);
@@ -40,43 +41,41 @@ class OrderTest {
 
     @Nested
     class calculateTotalAmount{
-        @DisplayName("calculateTotalAmount 호출을 통해 주문가격과 최종가격이 계산된다.")
+        @DisplayName("orderProduct가 주문에 추가될 때마다 주문가격과 최종가격이 변동된다.")
         @Test
         void success() {
             // given
             int firstPrice = 5000;
             int secondPrice = 6000;
 
-            DiscountInfo discountInfo = DiscountInfo.empty();
             OrderProduct orderProduct = OrderProduct.create(makeProduct(firstPrice), 1);
             OrderProduct orderProduct2 = OrderProduct.create(makeProduct(secondPrice), 1);
 
-            Order order = Order.create(User.create("yeop"), discountInfo);
-            order.addOrderProduct(orderProduct);
-            order.addOrderProduct(orderProduct2);
+            Order order = Order.create(User.create("yeop"));
 
             // when
-            order.calculateTotalAmount();
+            order.addOrderProduct(orderProduct);
+            order.addOrderProduct(orderProduct2);
 
             // then
             assertThat(order.getOrderAmount()).isEqualTo(firstPrice + secondPrice);
             assertThat(order.getFinalAmount()).isEqualTo(firstPrice + secondPrice);
         }
 
-        @DisplayName("discountInfo의 값이 있는 경우, finalAmount의 값이 discountInfo의 discountAmount 값을 뺀 값이 된다.")
+        @DisplayName("쿠폰을 적용하는 경우 최종가격에 할인 금액이 적용된다.")
         @Test
         void haveDiscountInfo() {
             // given
             int price = 5000;
             int discountAmount = 3000;
-            DiscountInfo discountInfo = DiscountInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
+            UserCouponInfo couponInfo = UserCouponInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
             OrderProduct orderProduct = OrderProduct.create(makeProduct(price), 1);
 
-            Order order = Order.create(User.create("yeop"), discountInfo);
+            Order order = Order.create(User.create("yeop"));
             order.addOrderProduct(orderProduct);
 
             // when
-            order.calculateTotalAmount();
+            order.applyCoupon(couponInfo);
 
             // then
             assertThat(order.getOrderAmount()).isEqualTo(price);
@@ -89,14 +88,14 @@ class OrderTest {
             // given
             int price = 5000;
             int discountAmount = 6000;
-            DiscountInfo discountInfo = DiscountInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
+            UserCouponInfo couponInfo = UserCouponInfo.from(UserCoupon.builder().discountAmount(discountAmount).build());
             OrderProduct orderProduct = OrderProduct.create(makeProduct(price), 1);
 
-            Order order = Order.create(User.create("yeop"), discountInfo);
+            Order order = Order.create(User.create("yeop"));
             order.addOrderProduct(orderProduct);
 
             // when
-            order.calculateTotalAmount();
+            order.applyCoupon(couponInfo);
 
             // then
             assertThat(order.getOrderAmount()).isEqualTo(price);
@@ -104,32 +103,11 @@ class OrderTest {
         }
     }
 
-    @DisplayName("calculateTotalAmount를 호출하면 총 가격을 계산하여 totalAmount에 담는다.")
-    @Test
-    void calculateTotalAmount() {
-        // given
-        int firstPrice = 5000;
-        int secondPrice = 6000;
-
-        OrderProduct orderProduct = OrderProduct.create(makeProduct(firstPrice), 1);
-        OrderProduct orderProduct2 = OrderProduct.create(makeProduct(secondPrice), 1);
-
-        Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
-        order.addOrderProduct(orderProduct);
-        order.addOrderProduct(orderProduct2);
-
-        // when
-        order.calculateTotalAmount();
-
-        // then
-        assertThat(order.getOrderAmount()).isEqualTo(firstPrice + secondPrice);
-    }
-
     @DisplayName("complete로 order status를 SUCCESS로 변경할 수 있다.")
     @Test
     void test() {
         // given
-        Order order = Order.create(User.create("yeop"), DiscountInfo.empty());
+        Order order = Order.create(User.create("yeop"));
 
         // when
         order.complete();

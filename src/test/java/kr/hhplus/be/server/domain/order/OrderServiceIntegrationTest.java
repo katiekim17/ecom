@@ -4,6 +4,7 @@ import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserRepository;
+import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import kr.hhplus.be.server.infra.order.JpaOrderProductRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +50,7 @@ class OrderServiceIntegrationTest {
         User user = User.create("user");
         User savedUser = userRepository.save(user);
 
-        DiscountInfo discountInfo = DiscountInfo.empty();
+        UserCouponInfo userCouponInfo = UserCouponInfo.empty();
 
         Product product1 = productRepository.save(Product.create("사과", 50, 5000));
         Product product2 = productRepository.save(Product.create("배", 50, 4000));
@@ -60,7 +61,7 @@ class OrderServiceIntegrationTest {
                 new OrderCommand.OrderLine(product2, 2)
         );
 
-        OrderCommand.Create command = new OrderCommand.Create(savedUser, discountInfo, orderLines);
+        OrderCommand.Create command = new OrderCommand.Create(savedUser, userCouponInfo, orderLines);
 
         // when
         Order order = orderService.order(command);
@@ -89,7 +90,7 @@ class OrderServiceIntegrationTest {
         // given
         User user = userRepository.save(User.create("yeop"));
         Product product1 = productRepository.save(Product.create("사과", 50, 5000));
-        Order order = Order.create(user, DiscountInfo.empty());
+        Order order = Order.create(user);
         order.addOrderProduct(OrderProduct.create(product1, 1));
         Order savedOrder = orderRepository.save(order);
 

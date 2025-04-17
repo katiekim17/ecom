@@ -134,7 +134,7 @@ class UserCouponTest {
                     .build();
 
             // when
-            userCoupon.use(userId, orderId);
+            userCoupon.use(userId);
 
             // then
             assertThat(userCoupon.getUsedAt()).isNotNull();
@@ -157,7 +157,7 @@ class UserCouponTest {
             Long differentUserId = 2L;
 
             // when // then
-            assertThatThrownBy(() -> userCoupon.use(differentUserId, orderId))
+            assertThatThrownBy(() -> userCoupon.use(differentUserId))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("보유 중인 쿠폰이 아닙니다.");;
         }
@@ -177,7 +177,7 @@ class UserCouponTest {
                     .build();
 
             // when // then
-            assertThatThrownBy(() -> userCoupon.use(userId, orderId))
+            assertThatThrownBy(() -> userCoupon.use(userId))
                     .isInstanceOf(ExpiredException.class)
                     .hasMessage("유효기간이 만료된 쿠폰입니다.");
         }

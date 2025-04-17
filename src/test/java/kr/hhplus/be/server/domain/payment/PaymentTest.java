@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.payment;
 
-import kr.hhplus.be.server.domain.order.DiscountInfo;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.Product;
@@ -17,7 +16,7 @@ class PaymentTest {
     void createByOrder() {
         // given
         User user = User.create("yeop");
-        Order order = Order.create(user, DiscountInfo.empty());
+        Order order = Order.create(user);
         // when
         Payment payment = Payment.createByOrder(order);
 
@@ -30,9 +29,8 @@ class PaymentTest {
     void totalAmountEqualToFinalAmount() {
         // given
         User user = User.create("yeop");
-        Order order = Order.create(user, DiscountInfo.empty());
+        Order order = Order.create(user);
         order.addOrderProduct(OrderProduct.create(makeProduct(5000), 1));
-        order.calculateTotalAmount();
         // when
         Payment payment = Payment.createByOrder(order);
 

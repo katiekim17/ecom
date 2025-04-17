@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.order;
 
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +34,7 @@ class OrderServiceTest {
         List<OrderCommand.OrderLine> orderLines =
                 List.of(new OrderCommand.OrderLine(product, 1));
 
-        OrderCommand.Create command = new OrderCommand.Create(user, DiscountInfo.empty(), orderLines);
+        OrderCommand.Create command = new OrderCommand.Create(user, UserCouponInfo.empty(), orderLines);
 
         when(orderRepository.save(any(Order.class))).thenReturn(any(Order.class));
 
@@ -49,7 +50,7 @@ class OrderServiceTest {
     void complete() {
         // given
         User user = User.create("yeop");
-        Order order = Order.create(user, DiscountInfo.empty());
+        Order order = Order.create(user);
 
         // when
         orderService.complete(order);

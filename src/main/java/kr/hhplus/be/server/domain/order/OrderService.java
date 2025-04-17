@@ -13,14 +13,13 @@ public class OrderService {
 
     @Transactional
     public Order order(OrderCommand.Create command) {
-        Order order = Order.create(command.user(), command.discountInfo());
+        Order order = Order.create(command.user());
 
         command.orderLines().stream()
-                    .map(orderProduct ->
-                            OrderProduct.create(orderProduct.product(), orderProduct.quantity()))
+                    .map(orderProduct -> OrderProduct.create(orderProduct.product(), orderProduct.quantity()))
                     .forEach(order::addOrderProduct);
 
-        order.calculateTotalAmount();
+        order.applyCoupon(command.userCouponInfo());
 
         return orderRepository.save(order);
     }

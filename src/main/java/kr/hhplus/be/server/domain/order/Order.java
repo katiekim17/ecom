@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.order;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseEntity;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,9 +21,7 @@ public class Order extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Long userId;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "order_id")
@@ -31,8 +30,7 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Transient
-    private DiscountInfo discountInfo;
+    private Long userCouponId;
 
     private int orderAmount;
 
@@ -42,28 +40,28 @@ public class Order extends BaseEntity {
 
     public void addOrderProduct(OrderProduct orderProduct) {
         orderProducts.add(orderProduct);
+        orderAmount += orderProduct.getPrice() * orderProduct.getQuantity();
+        finalAmount = orderAmount;
     }
 
-    public void calculateTotalAmount() {
-        orderProducts.forEach(orderProduct ->
-                orderAmount += orderProduct.getPrice() * orderProduct.getQuantity());
-        int discountAmount = orderAmount - discountInfo.discountAmount();
-
-        finalAmount = Math.max(discountAmount, 0);
-    }
 
     public void complete(){
         this.status = OrderStatus.SUCCESS;
     }
 
-    public static Order create(User user, DiscountInfo discountInfo){
-        return new Order(user, OrderStatus.PENDING, discountInfo, LocalDateTime.now());
+    public static Order create(User user){
+        return new Order(user, OrderStatus.PENDING, LocalDateTime.now());
     }
 
-    private Order(User user, OrderStatus status, DiscountInfo discountInfo, LocalDateTime orderDateTime) {
-        this.user = user;
+    private Order(User user, OrderStatus status, LocalDateTime orderDateTime) {
+        this.userId = user.getId();
         this.status = status;
-        this.discountInfo = discountInfo;
         this.orderDateTime = orderDateTime;
+    }
+
+    public void applyCoupon(UserCouponInfo userCouponInfo) {
+        finalAmount -= userCouponInfo.discountAmount();
+        finalAmount = Math.max(finalAmount, 0);
+        this.userCouponId = userCouponInfo.id();
     }
 }

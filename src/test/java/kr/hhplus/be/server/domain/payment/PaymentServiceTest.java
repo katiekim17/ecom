@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.payment;
 
-import kr.hhplus.be.server.domain.order.DiscountInfo;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.point.Point;
@@ -35,9 +34,8 @@ class PaymentServiceTest {
         // given
         User user = User.create("yeop");
 
-        Order order = Order.create(user, DiscountInfo.empty());
-        order.addOrderProduct(new OrderProduct(Product.create("사과", 50, 5000), 2));
-        order.calculateTotalAmount();
+        Order order = Order.create(user);
+        order.addOrderProduct(OrderProduct.create(Product.create("사과", 50, 5000), 2));
 
         PointCommand.Use command = new PointCommand.Use(1L, 10000);
         Point usedPoint = Point.create(user, 0);
