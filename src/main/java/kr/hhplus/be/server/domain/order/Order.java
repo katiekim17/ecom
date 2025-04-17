@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Table(name = "orders")
@@ -63,5 +64,18 @@ public class Order extends BaseEntity {
         finalAmount -= userCouponInfo.discountAmount();
         finalAmount = Math.max(finalAmount, 0);
         this.userCouponId = userCouponInfo.id();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Order order = (Order) o;
+        return Objects.equals(id, order.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -1,6 +1,9 @@
 package kr.hhplus.be.server.domain.point;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.InsufficientBalanceException;
 import kr.hhplus.be.server.support.exception.MaximumBalanceException;
@@ -19,9 +22,8 @@ public class Point {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    private Long userId;
+
     private int balance;
 
     public static Point create(User user, int balance) {
@@ -31,12 +33,12 @@ public class Point {
     @Builder
     public Point(Long id, User user, int balance) {
         this.id = id;
-        this.user = user;
+        this.userId = user.getId();
         this.balance = balance;
     }
 
     private Point(User user, int balance) {
-        this.user = user;
+        this.userId = user.getId();
         this.balance = balance;
     }
 
@@ -69,11 +71,11 @@ public class Point {
         if (o == null || getClass() != o.getClass()) return false;
 
         Point point = (Point) o;
-        return balance == point.balance && Objects.equals(user, point.user);
+        return Objects.equals(id, point.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, balance);
+        return Objects.hashCode(id);
     }
 }
