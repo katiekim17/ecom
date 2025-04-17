@@ -11,16 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public Product find(Long id) {
         return productRepository.find(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하는 상품이 없습니다."));
     }
 
+    @Transactional(readOnly = true)
     public PageResult<Product> findAll(ProductCommand.FindAll command) {
         // Pageable을 활용한 페이징 처리 시 0부터 페이지를 count하기 때문에 1 감소
         int pageNo = command.pageNo() - 1;

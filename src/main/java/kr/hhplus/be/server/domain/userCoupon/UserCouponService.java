@@ -15,7 +15,6 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserCouponService {
 
     private final UserService userService;
@@ -26,8 +25,8 @@ public class UserCouponService {
                             .orElseThrow(() -> new IllegalArgumentException("조회된 쿠폰이 없습니다."));
     }
 
+    @Transactional(readOnly = true)
     public PageResult<UserCoupon> findAllByUserId(UserCouponCommand.FindAll command) {
-
         // Pageable은 page를 0부터 인식
         int pageNo = command.pageNo() - 1;
         userService.findById(command.userId());
@@ -39,7 +38,6 @@ public class UserCouponService {
         return PageResult.create(page.getContent(), command.pageNo(), command.pageSize(), page.getTotalElements());
     }
 
-    @Transactional
     public UserCoupon issue(UserCouponCommand.Issue command){
         Coupon coupon = command.coupon();
         LocalDate now = LocalDate.now();
@@ -63,7 +61,6 @@ public class UserCouponService {
         return UserCouponInfo.from(userCoupon);
     }
 
-    @Transactional
     public UserCouponInfo use(UserCouponCommand.Use command) {
         if(command.isEmptyCoupon()){
             return UserCouponInfo.empty();
