@@ -35,3 +35,7 @@ infra
 ## 4. 조회 관련 성능 보고서
 
  - [인기상품 조회 성능 보고서](docs/search.md)
+
+## 5. 동시성 제어 테스트
+
+ - [동시성 제어 테스트](docs/concurrency.md)
