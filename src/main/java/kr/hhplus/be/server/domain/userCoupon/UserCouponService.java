@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.userCoupon;
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.user.UserService;
+import kr.hhplus.be.server.support.exception.AlreadyIssuedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,8 +40,10 @@ public class UserCouponService {
     }
 
     public UserCoupon issue(UserCouponCommand.Issue command){
-        Coupon coupon = command.coupon();
+        userCouponRepository.findByUserIdAndCouponId(command.user().getId(), command.coupon().getId())
+                .ifPresent(userCoupon -> {throw new AlreadyIssuedException("이미 발급받은 쿠폰입니다.");});
         LocalDate now = LocalDate.now();
+        Coupon coupon = command.coupon();
         UserCoupon userCoupon = coupon.issueTo(command.user(), now);
         return userCouponRepository.save(userCoupon);
     }
