@@ -17,7 +17,7 @@ import java.util.Objects;
 @Table(
         name = "orders",
         indexes = {
-
+                @Index(name = "idx_order_date_time_status", columnList = "order_date_time,status")
         }
 )
 @Entity
