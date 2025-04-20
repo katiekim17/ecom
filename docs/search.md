@@ -1,8 +1,66 @@
-# 인기상품 조회 성능 보고서
+# 조회 성능 보고서
 
 ## 개요
 
-3일간 가장 판매가 많이 된 상품 5개를 조회할 수 있는 API 이하 '인기 상품 조회' 혹은 '기능' 이라 칭한다.
+해당 프로젝트는 아래와 같은 API를 제공한다.
+
+- 잔액 충전 / 조회 API
+- 상품 조회 API
+- 주문 / 결제 API
+- 선착순 쿠폰 API
+- 인기 판매 상품 조회 API
+
+이 중에서 조회 성능에 문제가 생길 만한 것들을 리스트업하고 해당 성능을 높이기 위한 전략을 세워보고자 한다.
+
+## 성능 개선 대상 API
+
+### 선착순 쿠폰 발급
+
+쿠폰의 데이터베이스 구조는 아래와 같다.
+
+![coupon_erd.png](img/coupon_erd.png)
+
+쿠폰을 발급받을 시 coupon의 데이터를 기반으로 user_coupon의 데이터를 추가한다.
+
+선착순 쿠폰 발급의 경우 아래의 실패 테스트 케이스를 가진다.
+
+1. 발급 대상 쿠폰의 발급 가능 수량이 1이하인 경우 발급에 실패한다.
+2. 발급 대상 유저가 발급 대상 쿠폰을 보유하고 있는 경우 발급에 실패한다.
+
+2번째 케이스의 경우 해당 유저가 쿠폰을 보유하고 있는지 확인해야 하며, 아래의 쿼리가 실행된다.
+
+```sql
+SELECT 
+    id, user_id, name, type, discount_type, discount_amount
+    , expired_at, used_at, created_at, modified_at
+FROM user_coupon
+WHERE user_id = 23
+    AND coupon_id = 98;
+```
+
+현재 아무런 인덱스가 세팅되어있지 않으며, 실행계획을 돌려보면 table full scan을 하는 것을 확인할 수 있다.
+
+```sql
+-> Filter: ((user_coupon.coupon_id = 98) and (user_coupon.user_id = 23))  (cost=10095 rows=996) (actual time=70.2..70.2 rows=0 loops=1)
+-> Table scan on user_coupon  (cost=10095 rows=99588) (actual time=0.0719..61 rows=100000 loops=1)
+```
+
+이를 개선하기 위해 user_id에 인덱스를 설정할 수 있지만, coupon_id까지 복합 인덱스로 설정하면 커버링 인덱스를 만들 수 있기 때문에
+상대적으로 카디널리티가 높은 user_id를 앞 순서로 인덱스를 구성하였고, 결과는 아래와 같다.
+
+```sql
+CREATE INDEX idx_user_coupon_user_coupon ON user_coupon(user_id, coupon_id);
+```
+
+```sql
+-> Index lookup on user_coupon using user_id_coupon_id_idx (user_id = 23, coupon_id = 98)  (cost=0.35 rows=1) (actual time=0.024..0.024 rows=0 loops=1)
+```
+
+Filter 구문이 없어지고, index로만 조회가 가능한 상태가 되었다.
+
+### 인기 상품 조회 API
+
+3일간 가장 판매가 많이 된 상품 5개를 조회할 수 있는 API 이다.
 
 해당 기능은 메인 페이지 최초 접속 시 API를 요청하며, 많은 트래픽이 발생할 수록 Database에 요청이 많아져 병목현상이 발생할 수 있다.
 
@@ -46,13 +104,26 @@ SQL로 유저 100명, 상품 1000개, 오더 10,000개를 넣어서 테스트를
 
 실행결과는 다음과 같다. 풀스캔이 발생하고 있는데, 이를 한 번 인덱스를 걸어서 테스트를 진행해보자.
 
-인덱스는 order_product에 order_id, product_id를 걸어주었고, 
+인덱스는 order_product에 order_id, product_id를 걸어주었고,
 
 orders에 order_date_time, status에 걸어두었다.
 
-![explain_after.png](img/explain_after.png)
+```sql
+-> Limit: 5 row(s)  (actual time=0.0426..0.0426 rows=0 loops=1)
+    -> Sort: sum DESC, limit input to 5 row(s) per chunk  (actual time=0.0421..0.0421 rows=0 loops=1)
+        -> Table scan on <temporary>  (actual time=0.0329..0.0329 rows=0 loops=1)
+            -> Aggregate using temporary table  (actual time=0.0316..0.0316 rows=0 loops=1)
+                -> Nested loop inner join  (cost=1.39 rows=0.333) (actual time=0.0217..0.0217 rows=0 loops=1)
+                    -> Nested loop inner join  (cost=1.28 rows=0.333) (actual time=0.0212..0.0212 rows=0 loops=1)
+                        -> Filter: ((o.order_date_time >= <cache>((curdate() - interval 3 day))) and (o.`status` = 'SUCCESS'))  (cost=1.16 rows=0.333) (actual time=0.0206..0.0206 rows=0 loops=1)
+                            -> Covering index range scan on o using order_date_time_status_idx over ('2025-04-18 00:00:00.000000' <= order_date_time AND 'SUCCESS' <= status)  (cost=1.16 rows=1) (actual time=0.0198..0.0198 rows=0 loops=1)
+                        -> Filter: (op.product_id is not null)  (cost=0.55 rows=1) (never executed)
+                            -> Index lookup on op using order_id_idx (order_id = o.id)  (cost=0.55 rows=1) (never executed)
+                    -> Single-row index lookup on p using PRIMARY (id = op.product_id)  (cost=0.55 rows=1) (never executed)
 
-효과는 굉장했다 ! 
+```
+
+효과는 굉장했다 !
 
 하지만 데이터의 문제인지 order_id와 order_date_time에 걸었을 때에는 효과가 컸지만, 이외의 인덱스는 효과가 그렇게 크지 않았다.
 
