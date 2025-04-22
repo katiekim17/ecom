@@ -1,9 +1,6 @@
 package kr.hhplus.be.server.domain.point;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.BaseEntity;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.InsufficientBalanceException;
@@ -26,6 +23,9 @@ public class Point extends BaseEntity {
     private Long userId;
 
     private int balance;
+
+    @Version
+    private Long version;
 
     public static Point create(User user, int balance) {
         return new Point(user, balance);
