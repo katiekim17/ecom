@@ -12,8 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 @Service
 @RequiredArgsConstructor
 public class UserCouponService {
@@ -42,9 +40,8 @@ public class UserCouponService {
     public UserCoupon issue(UserCouponCommand.Issue command){
         userCouponRepository.findByUserIdAndCouponId(command.user().getId(), command.coupon().getId())
                 .ifPresent(userCoupon -> {throw new AlreadyIssuedException("이미 발급받은 쿠폰입니다.");});
-        LocalDate now = LocalDate.now();
         Coupon coupon = command.coupon();
-        UserCoupon userCoupon = coupon.issueTo(command.user(), now);
+        UserCoupon userCoupon = coupon.issueTo(command.user());
         return userCouponRepository.save(userCoupon);
     }
 

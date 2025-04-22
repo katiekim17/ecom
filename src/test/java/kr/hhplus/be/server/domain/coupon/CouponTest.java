@@ -28,21 +28,54 @@ class CouponTest {
         assertThat(coupon.getQuantity()).isEqualTo(initialQuantity);
     }
 
+
+    @Nested
+    class issueValidation{
+        @DisplayName("쿠폰의 발급 가능 개수가 0인 경우 유효성 검사에 실패하며 CouponIssueLimitExceededException 발생한다.")
+        @Test
+        void issueLeftQuantityZero() {
+            // given
+            Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3,
+                    LocalDate.now(), LocalDate.now().plusDays(3), 0);
+            LocalDate now = LocalDate.now();
+
+            // when
+            assertThatThrownBy(() -> coupon.issueValidation(now))
+                    .isInstanceOf(CouponIssueLimitExceededException.class)
+                    .hasMessage("발급 가능한 수량을 초과하였습니다.");
+
+            // then
+        }
+
+        @DisplayName("현재 날짜가 쿠폰의 발급 기간이 아닌 경우 유효성 검사에 실패하며 CouponIssuePeriodException이 발생한다.")
+        @Test
+        void notIssuePeriod() {
+            // given
+            Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3
+                    , LocalDate.now().plusDays(1), LocalDate.now().plusDays(3), 10);
+            LocalDate now = LocalDate.now();
+
+            // when // then
+            assertThatThrownBy(() -> coupon.issueValidation(now))
+                    .isInstanceOf(CouponIssuePeriodException.class)
+                    .hasMessage("쿠폰 발급 기간이 아닙니다.");
+        }
+    }
+
     @Nested
     class issueTo {
-        @DisplayName("쿠폰으로 멤버쿠폰을 발급하면 남은 개수가 1 줄어든다.")
+        @DisplayName("쿠폰으로 멤버쿠폰을 발급할 수 있다.")
         @Test
-        void issueToDeductQuantity() {
+        void issueUserCoupon() {
             // given
             Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
             User user = User.create("yeop");
             int originalQuantity = coupon.getQuantity();
-            LocalDate now = LocalDate.now();
             // when
-            coupon.issueTo(user, now);
+            UserCoupon userCoupon = coupon.issueTo(user);
 
             // then
-            assertThat(coupon.getQuantity()).isEqualTo(originalQuantity - 1);
+            assertThat(userCoupon).isNotNull();
         }
 
         @DisplayName("쿠폰으로 멤버쿠폰을 발급할 때 멤버쿠폰의 유효기간은 현재 날짜에서 expirationMonth개월 만큼 더한 날까지 사용할 수 있다.")
@@ -54,41 +87,40 @@ class CouponTest {
             LocalDate now = LocalDate.now();
 
             // when
-            UserCoupon userCoupon = coupon.issueTo(user, now);
+            UserCoupon userCoupon = coupon.issueTo(user);
 
             // then
             assertThat(userCoupon.getExpiredAt().isEqual(now.plusMonths(coupon.getExpirationMonth()))).isTrue();
         }
+    }
 
-        @DisplayName("쿠폰으로 멤버쿠폰을 발급할 때 남은 개수가 0인 경우 CouponIssueLimitExceededException 발생한다.")
+    @Nested
+    class deduct{
+        @DisplayName("현재 남은 수량이 0 이하인 경우 개수 차감에 실패한다.")
         @Test
         void issueLeftQuantityZero() {
             // given
-            Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 0);
-            User user = User.create("yeop");
-            LocalDate now = LocalDate.now();
-
-            // when
-            assertThatThrownBy(() -> coupon.issueTo(user, now))
-                    .isInstanceOf(CouponIssueLimitExceededException.class)
-                    .hasMessage("발급 가능한 수량을 초과하였습니다.");
-
-            // then
-        }
-
-        @DisplayName("발급 기간이 아닌 경우 CouponIssuePeriodException이 발생한다.")
-        @Test
-        void notIssuePeriod() {
-            // given
             Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3
                     , LocalDate.now().plusDays(1), LocalDate.now().plusDays(3), 0);
-            User user = User.create("yeop");
-            LocalDate now = LocalDate.now();
 
             // when // then
-            assertThatThrownBy(() -> coupon.issueTo(user, now))
-                    .isInstanceOf(CouponIssuePeriodException.class)
-                    .hasMessage("쿠폰 발급 기간이 아닙니다.");
+            assertThatThrownBy(coupon::deductQuantity)
+                    .isInstanceOf(CouponIssueLimitExceededException.class)
+                    .hasMessage("발급 가능한 수량을 초과하였습니다.");
+        }
+
+        @DisplayName("쿠폰의 개수를 차감 시도하면 보유 개수에서 1개 차감된다.")
+        @Test
+        void test() {
+            // given
+            Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3
+                    , LocalDate.now().plusDays(1), LocalDate.now().plusDays(3), 5);
+
+            // when
+            coupon.deductQuantity();
+
+            // then
+            assertThat(coupon.getQuantity()).isEqualTo(4);
         }
     }
 

@@ -12,20 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CouponFacade {
 
     private final UserService userService;
     private final CouponService couponService;
     private final UserCouponService userCouponService;
 
+    @Transactional
     public CouponResult.IssueUserCoupon issueUserCoupon(CouponCriteria.IssueUserCoupon criteria) {
 
         User user = userService.findById(criteria.userId());
-        Coupon coupon = couponService.findById(criteria.couponId());
+        Coupon coupon = couponService.issueValidate(criteria.couponId());
         UserCoupon userCoupon = userCouponService.issue(criteria.toCommand(user, coupon));
+        couponService.deduct(criteria.couponId());
 
         return CouponResult.IssueUserCoupon.from(userCoupon);
     }
-
 }

@@ -17,4 +17,10 @@ public class CouponRepositoryImpl implements CouponRepository {
     public Optional<Coupon> findById(Long id) {
         return jpaCouponRepository.findById(id);
     }
+
+    @Override
+    public Optional<Coupon> findByIdForUpdate(Long id) {
+        return jpaCouponRepository.findByIdForUpdate(id);
+    }
+
 }

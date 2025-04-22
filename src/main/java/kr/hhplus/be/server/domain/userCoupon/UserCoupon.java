@@ -22,7 +22,7 @@ import java.util.Objects;
         name = "user_coupon",
         indexes = {
                 // 복합 인덱스 (user_id + coupon_id 순으로 정렬)
-                @Index(name = "idx_user_coupon_user_coupon", columnList = "user_id,coupon_id")
+                @Index(name = "idx_user_coupon_user_coupon", columnList = "user_id, coupon_id")
         }
 )
 public class UserCoupon extends BaseEntity {
