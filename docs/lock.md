@@ -16,6 +16,16 @@
 
 위 3가지 케이스에 대해 Lock을 활용해 동시성 제어를 진행해보고자 한다.
 
+### 요약 
+
+| 기능            | 적용 락  | 이유                                                                    |
+|---------------|-------|-----------------------------------------------------------------------|
+| 선착순 쿠폰 발급     | 비관적 락 | 낙관적 락 재시도 시 먼저 시도한 유저가 실패하고 이후 시도한 유저만 성공하는 역효과 방지를 위해                |
+| 사용자 포인트 충전    | 낙관적 락 | 재시도 순서에 민감하지 않고, 충전 실패 시 곧바로 재시도하거나 무시해도 큰 문제가 없다고 판단                 |
+| 사용자 포인트 사용    | 비관적 락 | ‘주문 및 결제’ 핵심 비즈니스와 직결되어 있어, 동시 사용 시 절대 잔액 이상 사용이 발생하지 않도록 강제 잠금 필요    |
+| 주문 시 상품 재고 차감 | 비관적 락 | 핵심 비즈니스 로직으로, 재시도 시에도 순서가 뒤바뀌면 안 되며, 동시 차감 시 재고 부족이 발생하지 않도록 강제 잠금 필요 |
+
+
 ## 선착순 쿠폰 발급 API
 
 TC.
@@ -305,3 +315,45 @@ public class Point extends BaseEntity {
 
 ## 주문 시 상품 재고 차감
 
+재고 차감은 주문의 순서가 중요하다고 생각들어 재시도 시 순서 보장을 할 수 없는 낙관적 락 말고 비관적 락을 적용해보려고 한다.
+
+```java
+    @DisplayName("동시에 재고차감이 이루어져도 정상적으로 재고가 차감된다.")
+    @Test
+    void concurrencyDeductStock() throws InterruptedException {
+        // given
+        Product product = productRepository.save(Product.create("사과", 10, 1000));
+        Long productId = product.getId();
+
+        int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                ProductCommand.DeductStock command = new ProductCommand.DeductStock(productId, 1);
+                productService.deductStock(command);
+                latch.countDown();
+            });
+        }
+
+        latch.await(); // 모든 작업이 끝날 때까지 대기
+
+        // then
+        Product finalproduct = productRepository.find(productId).orElse(null);
+        assertThat(finalproduct).isNotNull();
+        assertThat(finalproduct.getStock()).isEqualTo(0);
+    }
+```
+
+위의 테스트 코드는 현재 아무런 동시성 제어 코드가 없기 때문에 오류가 발생하며, 아래와 같이 비관적 락을 적용해보도록 하겠다.
+
+
+```java
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<Product> findByIdForUpdate(Long id);
+```
+
+이후 테스트 코드는 정상적으로 동작하였다.
