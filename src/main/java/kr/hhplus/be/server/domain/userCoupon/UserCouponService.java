@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.userCoupon;
 
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.support.exception.AlreadyIssuedException;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,11 @@ public class UserCouponService {
     public PageResult<UserCoupon> findAllByUserId(UserCouponCommand.FindAll command) {
         // Pageable은 page를 0부터 인식
         int pageNo = command.pageNo() - 1;
-        userService.findById(command.userId());
+        User user = command.user();
         Pageable pageable = PageRequest.of(pageNo, command.pageSize()
                             , Sort.by("createdAt").descending());
 
-        Page<UserCoupon> page = userCouponRepository.findAllByUserId(command.userId(), pageable);
+        Page<UserCoupon> page = userCouponRepository.findAllByUserId(user.getId(), pageable);
 
         return PageResult.create(page.getContent(), command.pageNo(), command.pageSize(), page.getTotalElements());
     }

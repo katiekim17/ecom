@@ -6,8 +6,8 @@ import kr.hhplus.be.server.domain.userCoupon.UserCouponCommand;
 
 public record CouponCriteria(
 ) {
-    public record IssueUserCoupon(Long userId, Long couponId) {
-        UserCouponCommand.Issue toCommand(User user, Coupon coupon){
+    public record IssueUserCoupon(User user, Long couponId) {
+        UserCouponCommand.Issue toCommand(Coupon coupon){
             return new UserCouponCommand.Issue(user, coupon);
         }
     }

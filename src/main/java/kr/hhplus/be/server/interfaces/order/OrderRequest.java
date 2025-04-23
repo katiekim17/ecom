@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.order;
 
 import kr.hhplus.be.server.application.order.OrderCriteria;
+import kr.hhplus.be.server.domain.user.User;
 
 import java.util.List;
 
@@ -8,13 +9,12 @@ public record OrderRequest(
 ) {
 
     public record Create(
-            Long userId,
             Long userCouponId,
             List<OrderItem> orderItems
     ){
-        public OrderCriteria.Create toCriteria(){
+        public OrderCriteria.Create toCriteria(User user){
             return new OrderCriteria.Create(
-                    this.userId,
+                    user,
                     this.userCouponId,
                     this.orderItems.stream()
                         .map(OrderRequest.OrderItem::toCriteria)

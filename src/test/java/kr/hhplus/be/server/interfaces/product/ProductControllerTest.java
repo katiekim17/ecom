@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductCommand;
 import kr.hhplus.be.server.domain.product.ProductService;
+import kr.hhplus.be.server.domain.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,9 @@ class ProductControllerTest {
 
     @MockitoBean
     private ProductService productService;
+
+    @MockitoBean
+    private UserService userService;
 
     @Test
     @DisplayName("productId에 해당하는 상품이 있는 경우 해당 상품을 반환한다.")
