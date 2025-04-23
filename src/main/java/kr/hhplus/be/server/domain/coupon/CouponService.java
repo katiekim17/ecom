@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.coupon;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -20,6 +21,7 @@ public class CouponService {
         return coupon;
     }
 
+    @Transactional
     public Coupon deduct(Long id) {
         Coupon coupon = couponRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠폰입니다."));
