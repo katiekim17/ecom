@@ -15,9 +15,7 @@ public class StatsService {
 
     @Transactional(readOnly = true)
     public List<PopularProduct> getPopularProducts() {
-
         return statsRepository.getPopularProducts();
-
     }
 
     @Transactional

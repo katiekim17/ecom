@@ -11,7 +11,12 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "stats_daily_product_sales")
+@Table(
+        name = "stats_daily_product_sales",
+        indexes = {
+                @Index(name = "idx_product_id_order_date", columnList = "product_id, order_date"),
+        }
+)
 public class SalesProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
