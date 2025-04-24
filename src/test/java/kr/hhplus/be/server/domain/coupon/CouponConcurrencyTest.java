@@ -23,13 +23,13 @@ public class CouponConcurrencyTest {
     private JpaCouponRepository jpaCouponRepository;
 
 
-    @DisplayName("쿠폰의 수량이 10개 남았을 때, 10명의 사용자가 을 동시에 수량 차감을 요청하면 남은 수량은 0이 된다.")
+    @DisplayName("쿠폰의 수량이 10개 남았을 때, 13명의 사용자가 을 동시에 수량 차감을 요청하면 남은 수량은 0이 된다.")
     @Test
     void deduct() throws InterruptedException {
         // given
         Coupon coupon = Coupon.create("쿠폰", CouponType.TOTAL, DiscountType.FIXED, 1000, 3, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), 10);
         jpaCouponRepository.save(coupon);
-        int threadCount = 10;
+        int threadCount = 13;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 

@@ -332,9 +332,14 @@ public class Point extends BaseEntity {
         // when
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
-                ProductCommand.DeductStock command = new ProductCommand.DeductStock(productId, 1);
-                productService.deductStock(command);
-                latch.countDown();
+                try{
+                    ProductCommand.DeductStock command = new ProductCommand.DeductStock(productId, 1);
+                    productService.deductStock(command);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }finally {
+                    latch.countDown();
+                }
             });
         }
 

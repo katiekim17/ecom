@@ -64,7 +64,7 @@ public class PointConcurrencyTest {
         assertThat(finalPoint.getBalance()).isEqualTo(chargeAmount * successCnt.get()); // 총합 결과
     }
 
-    @DisplayName("동시에 사용을 여러번 하여도 포인트가 충분한 경우 모두 사용되며, 포인트 차감이 정상 적용된다.")
+    @DisplayName("동시에 사용을 여러번 하여도 보유 포인트 만큼만 사용되며, 포인트 차감이 정상 적용된다.")
     @Test
     void concurrencyUseAndCharge() throws InterruptedException {
         // given
@@ -73,7 +73,7 @@ public class PointConcurrencyTest {
 
         Long userId = user.getId();
 
-        int threadCount = 10;
+        int threadCount = 11;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
