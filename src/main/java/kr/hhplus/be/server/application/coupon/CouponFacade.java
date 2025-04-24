@@ -20,7 +20,6 @@ public class CouponFacade {
     @Transactional
     public CouponResult.IssueUserCoupon issueUserCoupon(CouponCriteria.IssueUserCoupon criteria) {
 
-//        User user = userService.findById(criteria.userId());
         Coupon coupon = couponService.issueValidate(criteria.couponId());
         UserCoupon userCoupon = userCouponService.issue(criteria.toCommand(coupon));
         couponService.deduct(criteria.couponId());
