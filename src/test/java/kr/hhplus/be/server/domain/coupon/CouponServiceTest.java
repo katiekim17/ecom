@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,19 +22,36 @@ class CouponServiceTest {
     @InjectMocks
     private CouponService couponService;
 
-    @DisplayName("couponId로 해당 coupon을 조회할 수 있다.")
+
+    @DisplayName("해당 쿠폰이 발급할 수 있는 상태인지 유효성 검사를 진행한 후 쿠폰을 반환한다.")
     @Test
-    void find() {
+    void issueValidate() {
         // given
-        Long id = 1L;
-        Coupon coupon = Coupon.create("깜짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 10);
-        when(couponRepository.findById(id)).thenReturn(Optional.of(coupon));
+        Long couponId = 1L;
+        Coupon coupon = Coupon.create("깜짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 1000, 3, LocalDate.now().minusDays(1), LocalDate.now().plusDays(3), 10);
+        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
 
         // when
-        couponService.findById(id);
+        Coupon validatedCoupon = couponService.issueValidate(couponId);
 
         // then
-        verify(couponRepository, times(1)).findById(id);
+        assertThat(validatedCoupon).isNotNull();
+        verify(couponRepository, times(1)).findById(couponId);
+    }
+
+    @DisplayName("쿠폰의 수량을 차감시킬 수 있다.")
+    @Test
+    void deduct() {
+        // given
+        Long couponId = 1L;
+        Coupon coupon = Coupon.create("깜짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 1000, 3, LocalDate.now().minusDays(1), LocalDate.now().plusDays(3), 10);
+        when(couponRepository.findByIdForUpdate(couponId)).thenReturn(Optional.of(coupon));
+
+        // when
+        couponService.deduct(couponId);
+
+        // then
+        verify(couponRepository, times(1)).findByIdForUpdate(couponId);
     }
 
 }

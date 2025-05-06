@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.coupon.CouponType;
 import kr.hhplus.be.server.domain.coupon.DiscountType;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
+import kr.hhplus.be.server.support.exception.AlreadyIssuedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -68,21 +69,43 @@ class UserCouponServiceTest {
         verify(userCouponRepository, times(1)).findAllByUserId(userId, pageable);
     }
 
-    @DisplayName("user와 Coupon으로 user에게 userCoupon을 발급할 수 있다.")
-    @Test
-    void issue() {
-        // given
-        User user = User.create("yeop");
-        Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
-        UserCoupon userCoupon = UserCoupon.builder().userId(1L).couponId(1L).build();
-        UserCouponCommand.Issue command = new UserCouponCommand.Issue(user, coupon);
-        when(userCouponRepository.save(any(UserCoupon.class))).thenReturn(userCoupon);
-        // when
+    @Nested
+    class issue{
 
-        userCouponService.issue(command);
+        @DisplayName("user와 Coupon으로 user에게 userCoupon을 발급할 수 있다.")
+        @Test
+        void success() {
+            // given
+            User user = User.create("yeop");
+            Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
+            UserCoupon userCoupon = UserCoupon.builder().userId(1L).couponId(1L).build();
+            UserCouponCommand.Issue command = new UserCouponCommand.Issue(user, coupon);
+            when(userCouponRepository.save(any(UserCoupon.class))).thenReturn(userCoupon);
+            // when
 
-        // then
-        verify(userCouponRepository, times(1)).save(any(UserCoupon.class));
+            userCouponService.issue(command);
+
+            // then
+            verify(userCouponRepository, times(1)).save(any(UserCoupon.class));
+        }
+
+        @DisplayName("해당 쿠폰을 이미 발급받은 유저인 경우 AlreadyIssuedException이 발생한다.")
+        @Test
+        void fail() {
+            // given
+            User user = User.create("yeop");
+            Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 50);
+            UserCoupon userCoupon = UserCoupon.builder().userId(1L).couponId(1L).build();
+            UserCouponCommand.Issue command = new UserCouponCommand.Issue(user, coupon);
+            when(userCouponRepository.findByUserIdAndCouponId(user.getId(), coupon.getId())).thenReturn(Optional.of(userCoupon));
+            // when
+
+            assertThatThrownBy(() -> userCouponService.issue(command)).isInstanceOf(AlreadyIssuedException.class);
+
+            // then
+            verify(userCouponRepository, times(1)).findByUserIdAndCouponId(user.getId(), coupon.getId());
+        }
+
     }
 
     @Nested

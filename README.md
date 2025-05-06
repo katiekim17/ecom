@@ -39,3 +39,6 @@ infra
 ## 5. 동시성 제어 테스트
 
  - [동시성 제어 테스트](docs/concurrency.md)
+
+## 6. 동시성 제어 보고서
+ - [동시성 제어 보고서](docs/lock.md)

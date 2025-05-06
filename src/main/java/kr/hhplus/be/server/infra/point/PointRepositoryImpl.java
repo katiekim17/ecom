@@ -17,4 +17,9 @@ public class PointRepositoryImpl implements PointRepository {
     public Optional<Point> findByUserId(Long userId) {
         return jpaPointRepository.findByUserId(userId);
     }
+
+    @Override
+    public Optional<Point> findByUserIdForUpdate(Long userId) {
+        return jpaPointRepository.findByUserIdForUpdate(userId);
+    }
 }

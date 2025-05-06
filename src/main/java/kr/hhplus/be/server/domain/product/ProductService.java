@@ -41,7 +41,9 @@ public class ProductService {
     @Transactional
     public ProductInfo deductStock(ProductCommand.DeductStock command) {
 
-        Product product = find(command.productId());
+        Product product = productRepository.findByIdForUpdate(command.productId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하는 상품이 없습니다."));
+
         product.deductStock(command.quantity());
 
         return ProductInfo.from(product);

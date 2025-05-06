@@ -21,6 +21,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public Optional<Product> findByIdForUpdate(Long id) {
+        return jpaProductRepository.findByIdForUpdate(id);
+    }
+
+    @Override
     public Page<Product> findAll(Pageable pageable) {
         return jpaProductRepository.findAll(pageable);
     }

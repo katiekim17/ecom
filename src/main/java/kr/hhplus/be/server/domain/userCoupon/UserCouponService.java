@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.userCoupon;
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.user.UserService;
+import kr.hhplus.be.server.support.exception.AlreadyIssuedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +38,10 @@ public class UserCouponService {
     }
 
     public UserCoupon issue(UserCouponCommand.Issue command){
+        userCouponRepository.findByUserIdAndCouponId(command.user().getId(), command.coupon().getId())
+                .ifPresent(userCoupon -> {throw new AlreadyIssuedException("이미 발급받은 쿠폰입니다.");});
         Coupon coupon = command.coupon();
-        LocalDate now = LocalDate.now();
-        UserCoupon userCoupon = coupon.issueTo(command.user(), now);
+        UserCoupon userCoupon = coupon.issueTo(command.user());
         return userCouponRepository.save(userCoupon);
     }
 

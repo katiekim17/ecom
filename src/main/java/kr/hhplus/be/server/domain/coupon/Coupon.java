@@ -20,6 +20,10 @@ public class Coupon extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
+
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -35,9 +39,7 @@ public class Coupon extends BaseEntity {
     private int initialQuantity;
     private int quantity;
 
-    public UserCoupon issueTo(User user, LocalDate today) {
-        deductQuantity(today);
-
+    public UserCoupon issueTo(User user) {
         return UserCoupon.builder()
                 .couponId(this.id)
                 .userId(user.getId())
@@ -49,13 +51,18 @@ public class Coupon extends BaseEntity {
                 .build();
     }
 
-    private void deductQuantity(LocalDate today) {
+    public void issueValidation(LocalDate today) {
         if(today.isBefore(issueStartDate) || today.isAfter(issueEndDate)){
             throw new CouponIssuePeriodException();
         }else if(quantity < 1) {
             throw new CouponIssueLimitExceededException();
         }
+    }
 
+    public void deductQuantity() {
+        if(quantity < 1) {
+            throw new CouponIssueLimitExceededException();
+        }
         quantity--;
     }
 

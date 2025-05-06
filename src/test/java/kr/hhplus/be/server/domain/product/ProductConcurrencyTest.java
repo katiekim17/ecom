@@ -1,11 +1,11 @@
 package kr.hhplus.be.server.domain.product;
 
+import kr.hhplus.be.server.infra.product.JpaProductRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -22,23 +22,36 @@ class ProductConcurrencyTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private JpaProductRepository jpaProductRepository;
+
+    @AfterEach
+    void tearDown() {
+        jpaProductRepository.deleteAllInBatch();
+    }
+
     @DisplayName("동시에 재고차감이 이루어져도 정상적으로 재고가 차감된다.")
     @Test
-    @Commit
-    @Sql(scripts = "/sql/product.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void concurrencyDeductStock() throws InterruptedException {
         // given
-        Long productId = 1L;
-        int threadCount = 10;
+        Product product = productRepository.save(Product.create("사과", 10, 1000));
+        Long productId = product.getId();
+
+        int threadCount = 12;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
         // when
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
-                ProductCommand.DeductStock command = new ProductCommand.DeductStock(productId, 1);
-                productService.deductStock(command);
-                latch.countDown();
+                try{
+                    ProductCommand.DeductStock command = new ProductCommand.DeductStock(productId, 1);
+                    productService.deductStock(command);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }finally {
+                    latch.countDown();
+                }
             });
         }
 
