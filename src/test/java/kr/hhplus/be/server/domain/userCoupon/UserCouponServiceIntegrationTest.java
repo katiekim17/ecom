@@ -71,7 +71,7 @@ class UserCouponServiceIntegrationTest {
                 , createUserCoupon(userId, 1L, "깜짝쿠폰3", 5000)));
 
         // when
-        UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(userId, 1, 10);
+        UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(user, 1, 10);
         PageResult<UserCoupon> pageResult = userCouponService.findAllByUserId(command);
 
         // then

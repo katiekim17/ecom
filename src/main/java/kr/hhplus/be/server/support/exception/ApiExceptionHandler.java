@@ -14,6 +14,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(e.getStatus().value()).body(response);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        ErrorResponse response = new ErrorResponse(String.valueOf(400), e.getMessage());
+        return ResponseEntity.status(400).body(response);
+    }
+
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         return ResponseEntity.status(500).body(new ErrorResponse("500", "에러가 발생했습니다."));

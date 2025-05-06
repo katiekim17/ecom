@@ -31,7 +31,7 @@ class PointServiceIntegrationTest {
         User savedUser = jpaUserRepository.save(User.create("user"));
         jpaPointRepository.save(Point.create(savedUser, 0));
         // when
-        Point findPoint = pointService.find(savedUser.getId());
+        Point findPoint = pointService.find(savedUser);
         // then
         assertThat(findPoint.getBalance()).isEqualTo(0);
     }
@@ -43,7 +43,7 @@ class PointServiceIntegrationTest {
         User savedUser = jpaUserRepository.save(User.create("user"));
         jpaPointRepository.save(Point.create(savedUser, 0));
         int amount = 10;
-        PointCommand.Charge command = new PointCommand.Charge(savedUser.getId(), amount);
+        PointCommand.Charge command = new PointCommand.Charge(savedUser, amount);
 
         // when
         Point chargedPoint = pointService.charge(command);
@@ -59,7 +59,7 @@ class PointServiceIntegrationTest {
         User savedUser = jpaUserRepository.save(User.create("user"));
         jpaPointRepository.save(Point.create(savedUser, 10));
         int amount = 10;
-        PointCommand.Use command = new PointCommand.Use(savedUser.getId(), amount);
+        PointCommand.Use command = new PointCommand.Use(savedUser, amount);
         // when
         Point usedPoint = pointService.use(command);
 

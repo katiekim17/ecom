@@ -4,8 +4,10 @@ import kr.hhplus.be.server.application.coupon.CouponCriteria;
 import kr.hhplus.be.server.application.coupon.CouponFacade;
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponService;
+import kr.hhplus.be.server.interfaces.common.CurrentUser;
 import kr.hhplus.be.server.interfaces.common.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +24,19 @@ public class CouponController implements CouponDocs {
     private final CouponService couponService;
     private final UserCouponService userCouponService;
 
-    @PostMapping("/api/v1/users/{userId}/coupons/{couponId}")
-    public ResponseEntity<CouponResponse> issue(@PathVariable Long userId, @PathVariable Long couponId) {
-        CouponCriteria.IssueUserCoupon criteria = new CouponCriteria.IssueUserCoupon(userId, couponId);
+    @PostMapping("/api/v1/coupons/{couponId}")
+    public ResponseEntity<CouponResponse> issue(@CurrentUser User user, @PathVariable Long couponId) {
+        CouponCriteria.IssueUserCoupon criteria = new CouponCriteria.IssueUserCoupon(user, couponId);
         return ResponseEntity.ok(CouponResponse.from(couponFacade.issueUserCoupon(criteria)));
     }
 
-    @GetMapping("/api/v1/users/{userId}/coupons")
+    @GetMapping("/api/v1/coupons")
     public ResponseEntity<PageResponse<CouponResponse>> coupons(
-            @PathVariable Long userId
+            @CurrentUser User user
             , CouponRequest.Coupons request
     ) {
 
-        PageResult<UserCoupon> result = userCouponService.findAllByUserId(request.toCommand(userId));
+        PageResult<UserCoupon> result = userCouponService.findAllByUserId(request.toCommand(user));
 
         PageResponse<CouponResponse> response = new PageResponse<>(
                 result.content().stream().map(CouponResponse::from).toList()

@@ -7,7 +7,7 @@ public record UserCouponCommand(
 
 ) {
     public record FindAll(
-            Long userId, int pageNo, int pageSize
+            User user, int pageNo, int pageSize
     ){
 
     }

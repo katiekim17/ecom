@@ -7,10 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.interfaces.common.CurrentUser;
 import kr.hhplus.be.server.interfaces.common.PageResponse;
 import kr.hhplus.be.server.interfaces.product.ProductResponse;
 import kr.hhplus.be.server.support.exception.ErrorResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "coupon", description = "coupon API")
@@ -65,7 +68,7 @@ public interface CouponDocs {
                     )
             )
     })
-    public ResponseEntity<CouponResponse> issue(@PathVariable Long userId, @PathVariable Long couponId);
+    public ResponseEntity<CouponResponse> issue(@CurrentUser User user, @PathVariable Long couponId);
 
     @Operation(summary = "사용자 보유 쿠폰 조회", description = "요청한 사용자의 보유 쿠폰을 조회합니다.")
     @ApiResponses(value ={
@@ -110,7 +113,9 @@ public interface CouponDocs {
                     )
             )
     })
+    @GetMapping("/api/v1/coupons")
     public ResponseEntity<PageResponse<CouponResponse>> coupons(
-            @PathVariable Long userId
-            , CouponRequest.Coupons request);
+            @CurrentUser User user
+            , CouponRequest.Coupons request
+    );
 }
