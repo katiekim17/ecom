@@ -5,9 +5,12 @@ import kr.hhplus.be.server.application.coupon.CouponFacade;
 import kr.hhplus.be.server.application.coupon.CouponResult;
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponCommand;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,18 +45,30 @@ class CouponControllerTest {
     @MockitoBean
     private UserCouponService userCouponService;
 
+    @MockitoBean
+    private UserService userService;
+
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        user = User.create("yeop");
+        when(userService.findById(1L)).thenReturn(user);
+    }
+
     @DisplayName("사용자와 쿠폰의 id를 통해 쿠폰을 발급받을 수 있다.")
     @Test
     void post_api_v1_users_userId_coupons_couponId_200() throws Exception{
         // given
         Long userId = 1L;
         Long couponId = 1L;
-        CouponCriteria.IssueUserCoupon criteria = new CouponCriteria.IssueUserCoupon(userId, couponId);
+        CouponCriteria.IssueUserCoupon criteria = new CouponCriteria.IssueUserCoupon(user, couponId);
         CouponResult.IssueUserCoupon result  =new CouponResult.IssueUserCoupon(1L, "4월 반짝 쿠폰", 5000, LocalDate.of(2025, 4, 20));
         when(couponFacade.issueUserCoupon(criteria)).thenReturn(result);
 
         // when // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/{userId}/coupons/{couponId}", userId, couponId))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/coupons/{couponId}", couponId)
+                        .header("X-USER-ID", userId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userCouponId").value(result.id()))
@@ -68,7 +83,7 @@ class CouponControllerTest {
     void get_api_v1_users_userId_coupons_200() throws Exception{
         // given
         Long userId = 1L;
-        UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(userId, 1, 10);
+        UserCouponCommand.FindAll command = new UserCouponCommand.FindAll(user, 1, 10);
         UserCoupon userCoupon = UserCoupon.builder()
                 .userId(userId)
                 .couponId(1L)
@@ -81,7 +96,8 @@ class CouponControllerTest {
         when(userCouponService.findAllByUserId(command)).thenReturn(result);
 
         // when // then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/users/{userId}/coupons", userId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/coupons")
+                        .header("X-USER-ID", userId)
                         .queryParam("pageNo", String.valueOf(command.pageNo()))
                         .queryParam("pageSize", String.valueOf(command.pageSize())))
                 .andDo(print())

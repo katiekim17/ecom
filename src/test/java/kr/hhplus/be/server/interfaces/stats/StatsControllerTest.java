@@ -2,6 +2,7 @@ package kr.hhplus.be.server.interfaces.stats;
 
 import kr.hhplus.be.server.domain.stats.PopularProduct;
 import kr.hhplus.be.server.domain.stats.StatsService;
+import kr.hhplus.be.server.domain.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ class StatsControllerTest {
 
     @MockitoBean
     private StatsService statsService;
+
+    @MockitoBean
+    private UserService userService;
 
     @DisplayName("통계 요청 시 3일간 가장 많이 판매된 5개의 상품을 반환한다.")
     @Test

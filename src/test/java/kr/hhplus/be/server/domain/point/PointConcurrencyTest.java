@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +32,10 @@ public class PointConcurrencyTest {
 
     @DisplayName("동시에 여러번 충전을 진행하여도, 충전을 성공한 만큼만 포인트가 추가된다.")
     @Test
-    @Sql(scripts = "/sql/point.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void chargeConcurrency() throws InterruptedException{
         // given
-        Long userId = 1L;
+        User user = jpaUserRepository.save(User.create("user"));
+        jpaPointRepository.save(Point.create(user, 0));
         int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -47,7 +46,7 @@ public class PointConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try{
-                    pointService.charge(new PointCommand.Charge(userId, chargeAmount));
+                    pointService.charge(new PointCommand.Charge(user, chargeAmount));
                     successCnt.getAndIncrement();
                 }catch(Exception e){
                     e.printStackTrace();
@@ -60,7 +59,7 @@ public class PointConcurrencyTest {
         latch.await(); // 모든 작업이 끝날 때까지 대기
 
         // then
-        Point finalPoint = pointRepository.findByUserId(userId).orElseThrow();
+        Point finalPoint = pointRepository.findByUserId(user.getId()).orElseThrow();
         assertThat(finalPoint.getBalance()).isEqualTo(chargeAmount * successCnt.get()); // 총합 결과
     }
 
@@ -81,7 +80,7 @@ public class PointConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try{
-                    pointService.use(new PointCommand.Use(userId, 10));
+                    pointService.use(new PointCommand.Use(user, 10));
                 }catch(Exception e){
                     e.printStackTrace();
                 }finally {

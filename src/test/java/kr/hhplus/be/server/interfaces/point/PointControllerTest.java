@@ -5,6 +5,8 @@ import kr.hhplus.be.server.domain.point.Point;
 import kr.hhplus.be.server.domain.point.PointCommand;
 import kr.hhplus.be.server.domain.point.PointService;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,17 @@ class PointControllerTest {
     @MockitoBean
     private PointService pointService;
 
+    @MockitoBean
+    private UserService userService;
+
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        user = User.create("yeop");
+        when(userService.findById(1L)).thenReturn(user);
+    }
+
     @Nested
     class get_api_v1_points {
         @Test
@@ -41,16 +54,17 @@ class PointControllerTest {
             Long userId = 1L;
             Point point = createPoint(0);
 
-            when(pointService.find(userId)).thenReturn(point);
+            when(pointService.find(user)).thenReturn(point);
 
             // when //then
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/users/{userId}/points", userId))
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/v1//points")
+                            .header("X-USER-ID", userId))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.balance").value(0))
             ;
 
-            verify(pointService, times(1)).find(userId);
+            verify(pointService, times(1)).find(user);
         }
     }
 
@@ -66,13 +80,14 @@ class PointControllerTest {
             Point chargedPoint = createPoint(amount);
 
             PointRequest.Charge request = new PointRequest.Charge(amount);
-            PointCommand.Charge command = request.toCommand(userId);
+            PointCommand.Charge command = request.toCommand(user);
 
             when(pointService.charge(command)).thenReturn(chargedPoint);
 
 
             //when //then
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/{userId}/points", userId)
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/v1//points")
+                            .header("X-USER-ID", userId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                         .andDo(print())

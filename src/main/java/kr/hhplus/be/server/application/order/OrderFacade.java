@@ -34,9 +34,9 @@ public class OrderFacade {
     @Transactional
     public OrderResult order(OrderCriteria.Create criteria) {
 
-        User user = userService.findById(criteria.userId());
+        User user = criteria.user();
 
-        UserCouponCommand.Validate couponCommand = new UserCouponCommand.Validate(criteria.userId(), criteria.userCouponId());
+        UserCouponCommand.Validate couponCommand = new UserCouponCommand.Validate(user.getId(), criteria.userCouponId());
         UserCouponInfo userCouponInfo = userCouponService.validateAndGetInfo(couponCommand);
 
         List<OrderCommand.OrderLine> orderLines = criteria.orderItems().stream()
@@ -48,12 +48,12 @@ public class OrderFacade {
         OrderCommand.Create orderCommand = new OrderCommand.Create(user, userCouponInfo, orderLines);
         Order order = orderService.order(orderCommand);
 
-        PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(order, criteria.userId());
+        PaymentCommand.Pay paymentCommand = new PaymentCommand.Pay(order, user);
         Payment payment = paymentService.pay(paymentCommand);
 
         criteria.orderItems().forEach(orderItem -> productService.deductStock(orderItem.toDeductCommand()));
 
-        UserCouponCommand.Use command = new UserCouponCommand.Use(criteria.userId(), criteria.userCouponId());
+        UserCouponCommand.Use command = new UserCouponCommand.Use(user.getId(), criteria.userCouponId());
         userCouponService.use(command);
 
         return new OrderResult(

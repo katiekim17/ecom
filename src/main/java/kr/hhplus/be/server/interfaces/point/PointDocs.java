@@ -9,9 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.interfaces.common.CurrentUser;
 import kr.hhplus.be.server.support.exception.ErrorResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "point", description = "point API")
@@ -48,7 +49,7 @@ public interface PointDocs {
             )
     )
     ResponseEntity<PointResponse> point(@Parameter(description = "포인트 조회 요청 정보", required = true)
-                                        @PathVariable Long userId);
+                                        @CurrentUser User user);
 
     @Operation(summary = "포인트 충전", description = "userId의 해당하는 사용자의 포인트를 충전합니다." +
             "<br>충전하는 포인트는 0이상만 충전이 가능하며, 충전 이후 최대 잔고는 10,000,000원을 넘을 수 없습니다."
@@ -84,7 +85,7 @@ public interface PointDocs {
         )
     })
     ResponseEntity<PointResponse> charge(
-            @PathVariable Long userId,
+            @CurrentUser User user,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "충전 요청 정보",
                     required = true,
