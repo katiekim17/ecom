@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.point;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.infra.point.JpaPointRepository;
 import kr.hhplus.be.server.infra.user.JpaUserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,13 @@ public class PointConcurrencyTest {
     @Autowired
     private JpaPointRepository jpaPointRepository;
 
-    @DisplayName("동시에 여러번 충전을 진행하여도, 충전을 성공한 만큼만 포인트가 추가된다.")
+    @AfterEach
+    void tearDown() {
+        jpaPointRepository.deleteAllInBatch();
+        jpaUserRepository.deleteAllInBatch();
+    }
+
+    @DisplayName("동시에 여러번 충전을 진행하여도, 충전을 요청한 만큼 포인트가 추가된다.")
     @Test
     void chargeConcurrency() throws InterruptedException{
         // given
