@@ -64,7 +64,7 @@ class StatsServiceTest {
         when(statsRepository.getPopularProducts(command.startDate(), command.endDate())).thenReturn(res);
 
         // when
-        List<PopularProduct> popularProducts = statsService.getPopularProducts(command);
+        PopularProducts popularProducts = statsService.getPopularProducts(command);
 
         // then
         assertThat(popularProducts).isNotNull();

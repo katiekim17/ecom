@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.stats;
 
 import kr.hhplus.be.server.domain.stats.PopularProduct;
+import kr.hhplus.be.server.domain.stats.PopularProducts;
 import kr.hhplus.be.server.domain.stats.StatsCommand;
 import kr.hhplus.be.server.domain.stats.StatsService;
 import kr.hhplus.be.server.domain.user.UserService;
@@ -44,7 +45,7 @@ class StatsControllerTest {
                 new PopularProduct(5L, 1000L, "상품5", 1000, 10)
         );
         StatsCommand.PopularProducts command = new StatsCommand.PopularProducts(LocalDate.now().minusDays(3), LocalDate.now());
-        when(statsService.getPopularProducts(command)).thenReturn(products);
+        when(statsService.getPopularProducts(command)).thenReturn(new PopularProducts(products));
 
 
         // when // then

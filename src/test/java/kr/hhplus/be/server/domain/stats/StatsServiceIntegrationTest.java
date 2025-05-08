@@ -61,10 +61,10 @@ class StatsServiceIntegrationTest {
         // given // when
         Objects.requireNonNull(redisCacheManager.getCache("popularProducts")).clear();
         StatsCommand.PopularProducts command = new StatsCommand.PopularProducts(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1));
-        List<PopularProduct> popularProducts = statsService.getPopularProducts(command);
+        PopularProducts popularProducts = statsService.getPopularProducts(command);
 
         // then
-        assertThat(popularProducts).hasSize(5);
+        assertThat(popularProducts.getProducts()).hasSize(5);
     }
 
     @DisplayName("3일간 가장 판매가 많았던 상품이 조회되지 않는 경우 빈 배열이 반환된다.")
@@ -73,10 +73,10 @@ class StatsServiceIntegrationTest {
         // given // when
         Objects.requireNonNull(redisCacheManager.getCache("popularProducts")).clear();
         StatsCommand.PopularProducts command = new StatsCommand.PopularProducts(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1));
-        List<PopularProduct> popularProducts = statsService.getPopularProducts(command);
+        PopularProducts popularProducts = statsService.getPopularProducts(command);
 
         // then
-        assertThat(popularProducts).isEmpty();
+        assertThat(popularProducts.getProducts()).isEmpty();
     }
 
 }

@@ -19,8 +19,8 @@ public class StatsService {
             cacheNames = "popularProducts",
             key        = "#command.startDate().toString() + '_' + #command.endDate().toString()"
     )
-    public List<PopularProduct> getPopularProducts(StatsCommand.PopularProducts command) {
-        return statsRepository.getPopularProducts(command.startDate(), command.endDate());
+    public PopularProducts getPopularProducts(StatsCommand.PopularProducts command) {
+        return new PopularProducts(statsRepository.getPopularProducts(command.startDate(), command.endDate()));
     }
 
     @Transactional
