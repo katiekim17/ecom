@@ -16,6 +16,10 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Aspect
 @Component
@@ -31,41 +35,34 @@ public class DistributedLockAspect {
         Method method = ((MethodSignature) pjp.getSignature()).getMethod();
         DistributedLock ann = method.getAnnotation(DistributedLock.class);
 
-        String lockKey = parseKey(ann.key(), sig.getParameterNames(), pjp.getArgs());
+        List<String> keys = parseKeys(ann.topic(), ann.key(), sig.getParameterNames(), pjp.getArgs());
 
-        RLock lock = ann.type() == LockType.FAIR
-                ? redisson.getFairLock(lockKey) : redisson.getLock(lockKey);
+        List<RLock> locks = getLocks(keys, ann);
 
-        boolean acquired = lock.tryLock(
-                ann.waitTime(), ann.leaseTime(), ann.unit());
-        if (!acquired) {
-            throw new IllegalStateException("락 획득 실패: " + lockKey);
-        }
-        // 트랜잭션 동기화가 활성화되어 있으면 커밋/롤백 후 해제하도록 등록
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(
-                    new TransactionSynchronization() {
-                        @Override
-                        public void afterCompletion(int status) {
-                            if (lock.isHeldByCurrentThread()) {
-                                lock.unlock();
-                            }
-                        }
-                    });
-            // 실제 메서드 실행
-            return pjp.proceed();
-        }
-        // 트랜잭션 없으면, 메서드 종료 후 바로 해제
-        try {
-            return pjp.proceed();
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+        return unlockAndProceed(locks, pjp);
     }
 
-    private String parseKey(String spel, String[] paramNames, Object[] args) {
+    private List<String> parseKeys(String topic, String spel, String[] paramNames, Object[] args) {
+
+        Object key = parseKey(spel, paramNames, args);
+        List<String> keys;
+
+        if(key instanceof List) {
+            keys = ((Collection<Object>) key).stream()
+                    .map(Object::toString)
+                    .map(id -> makeKeyName(topic, id))
+                    .sorted()
+                    .collect(Collectors.toList());
+        }else if(key != null){
+            keys = List.of(makeKeyName(topic, key.toString()));
+        }else {
+            throw new IllegalStateException("올바르지 않은 키 형식입니다.");
+        }
+
+        return keys;
+    }
+
+    private Object parseKey(String spel, String[] paramNames, Object[] args) {
         // 1) SpEL 파서 & 컨텍스트
         StandardEvaluationContext ctx = new StandardEvaluationContext();
 
@@ -77,6 +74,68 @@ public class DistributedLockAspect {
         // 3) SpEL 평가 후 키 반환
         return new SpelExpressionParser()
                 .parseExpression(spel)
-                .getValue(ctx, String.class);
+                .getValue(ctx);
+    }
+
+    private String makeKeyName(String... args){
+        StringBuilder sb = new StringBuilder();
+        sb.append("lock");
+        for(String arg : args){
+            sb.append(":");
+            sb.append(arg);
+        }
+        return sb.toString();
+    }
+
+    private List<RLock> getLocks(List<String> keys, DistributedLock ann)throws InterruptedException {
+        List<RLock> locks = new ArrayList<>(keys.size());
+
+        for(String lockKey : keys){
+            RLock lock = ann.type() == LockType.FAIR
+                    ? redisson.getFairLock(lockKey) : redisson.getLock(lockKey);
+
+            boolean acquired = lock.tryLock(
+                    ann.waitTime(), ann.leaseTime(), ann.unit());
+
+            if (!acquired) {
+                locks.forEach(l -> {
+                    if (l.isHeldByCurrentThread()) l.unlock();
+                });
+                throw new IllegalStateException("락 획득 실패: " + lockKey);
+            }
+
+            locks.add(lock);
+        }
+
+        return locks;
+    }
+
+    private Object unlockAndProceed(List<RLock> locks, ProceedingJoinPoint pjp) throws Throwable {
+        // 트랜잭션 동기화가 활성화되어 있으면 커밋/롤백 후 해제하도록 등록
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCompletion(int status) {
+                            for (RLock lock : locks) {
+                                if (lock.isHeldByCurrentThread()) {
+                                    lock.unlock();
+                                }
+                            }
+                        }
+                    });
+            // 실제 메서드 실행
+            return pjp.proceed();
+        }
+        // 트랜잭션 없으면, 메서드 종료 후 바로 해제
+        try {
+            return pjp.proceed();
+        } finally {
+            for (RLock lock : locks) {
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
+            }
+        }
     }
 }

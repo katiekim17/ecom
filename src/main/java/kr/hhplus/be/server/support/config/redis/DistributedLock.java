@@ -18,9 +18,12 @@ import java.util.concurrent.TimeUnit;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DistributedLock {
+
+    String topic();
+
     /**
      * 락의 키(SpEL 가능)
-     * ex) "lock:point:" + "#userId"
+     * ex) "#userId"
      */
     String key();
 

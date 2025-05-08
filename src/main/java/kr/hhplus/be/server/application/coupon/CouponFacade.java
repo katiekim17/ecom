@@ -22,7 +22,7 @@ public class CouponFacade {
     private final UserCouponService userCouponService;
 
     @Transactional
-    @DistributedLock(key = "'lock:coupon:' + #id", type = LockType.FAIR)
+    @DistributedLock(topic = "coupon", key = "#criteria.couponId", type = LockType.FAIR)
     public CouponResult.IssueUserCoupon issueUserCoupon(CouponCriteria.IssueUserCoupon criteria) {
 
         Coupon coupon = couponService.issueValidate(criteria.couponId());

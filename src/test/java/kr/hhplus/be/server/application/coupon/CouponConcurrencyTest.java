@@ -59,6 +59,7 @@ class CouponConcurrencyTest {
                     User user = jpaUserRepository.findById(userId).orElseThrow();
                     CouponCriteria.IssueUserCoupon criteria = new CouponCriteria.IssueUserCoupon(user, couponId);
                     couponFacade.issueUserCoupon(criteria);
+                    successCnt.getAndIncrement();
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
