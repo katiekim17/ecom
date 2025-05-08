@@ -66,6 +66,7 @@ public class PointConcurrencyTest {
         latch.await(); // 모든 작업이 끝날 때까지 대기
 
         // then
+        assertThat(successCnt.get()).isNotZero();
         Point finalPoint = pointRepository.findByUserId(user.getId()).orElseThrow();
         assertThat(finalPoint.getBalance()).isEqualTo(chargeAmount * successCnt.get()); // 총합 결과
     }
@@ -76,7 +77,7 @@ public class PointConcurrencyTest {
         // given
         User user = jpaUserRepository.save(User.create("user"));
         jpaPointRepository.save(Point.create(user, 100));
-
+        AtomicInteger successCnt = new AtomicInteger();
         Long userId = user.getId();
 
         int threadCount = 11;
@@ -88,6 +89,7 @@ public class PointConcurrencyTest {
             executorService.submit(() -> {
                 try{
                     pointService.use(new PointCommand.Use(user, 10));
+                    successCnt.getAndIncrement();
                 }catch(Exception e){
                     e.printStackTrace();
                 }finally {
@@ -99,7 +101,9 @@ public class PointConcurrencyTest {
         latch.await(); // 모든 작업이 끝날 때까지 대기
 
         // then
+        assertThat(successCnt.get()).isNotZero();
         Point finalPoint = pointRepository.findByUserId(userId).orElseThrow();
         assertThat(finalPoint.getBalance()).isEqualTo(0); // 총합 결과
     }
+
 }

@@ -4,6 +4,7 @@ import kr.hhplus.be.server.domain.point.Point;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.infra.order.JpaOrderProductRepository;
 import kr.hhplus.be.server.infra.order.JpaOrderRepository;
 import kr.hhplus.be.server.infra.payment.JpaPaymentRepository;
 import kr.hhplus.be.server.infra.point.JpaPointRepository;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -47,9 +49,14 @@ class OrderFacadeTest {
     @Autowired
     private JpaOrderRepository jpaOrderRepository;
 
+    @Autowired
+    private JpaOrderProductRepository jpaOrderProductRepository;
+
     @AfterEach
     void tearDown() {
         jpaPaymentRepository.deleteAllInBatch();
+        jpaProductRepository.deleteAllInBatch();
+        jpaOrderProductRepository.deleteAllInBatch();
         jpaOrderRepository.deleteAllInBatch();
         jpaPointRepository.deleteAllInBatch();
         jpaUserRepository.deleteAllInBatch();
@@ -68,15 +75,16 @@ class OrderFacadeTest {
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
         AtomicInteger successCnt = new AtomicInteger();
-
+        List<User> users = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
             User user = jpaUserRepository.save(User.create("user" + i));
             jpaPointRepository.save(Point.create(user, 1000));
+            users.add(user);
         }
 
         // when
-        for (long i = 1; i <= threadCount; i++) {
-            Long userId = i;
+        for (int i = 1; i <= threadCount; i++) {
+            Long userId = users.get(i - 1).getId();
             executorService.submit(() -> {
                 try{
                     User user = jpaUserRepository.findById(userId).orElseThrow();
@@ -104,15 +112,49 @@ class OrderFacadeTest {
                 .containsOnly(leftStock, leftStock);
     }
 
-    @DisplayName("")
+    @DisplayName("동일한 유저가 별도의 상품을 주문하더라도 포인트 사용 시 사용된 포인트만 차감된다.")
     @Test
-    void concurrencyOrderByPoint() {
+    void concurrencyOrderByPoint() throws InterruptedException {
         // given
+        int threadCount = 12;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        AtomicInteger successCnt = new AtomicInteger();
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            Product product = jpaProductRepository.save(Product.create("product" + i, 10, 10));
+            products.add(product);
+        }
 
+        User savedUser = jpaUserRepository.save(User.create("user"));
+        jpaPointRepository.save(Point.create(savedUser, 100));
+        Long userId = savedUser.getId();
 
         // when
+        for (int i = 1; i <= threadCount; i++) {
+            Product product = products.get(i - 1);
+            executorService.submit(() -> {
+                try{
+                    User user = jpaUserRepository.findById(userId).orElseThrow();
 
+                    OrderCriteria.Create criteria = new OrderCriteria.Create(user, null
+                            , List.of( new OrderCriteria.Create.OrderItem(product.getId(), 1)));
+                    orderFacade.order(criteria);
+                    successCnt.getAndIncrement();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await(); // 모든 작업이 끝날 때까지 대기
 
         // then
+        assertThat(successCnt.get()).isNotZero();
+        Point point = jpaPointRepository.findByUserId(userId).orElseThrow();
+        assertThat(point.getBalance()).isEqualTo(0);
     }
+
 }

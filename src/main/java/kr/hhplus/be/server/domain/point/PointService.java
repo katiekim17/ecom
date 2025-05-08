@@ -19,7 +19,7 @@ public class PointService {
                 .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
     }
 
-    @DistributedLock(key = "'lock:point:' + #command.user.id")
+    @DistributedLock(topic = "point", key = "#command.user.id")
     @Transactional
     public Point charge(PointCommand.Charge command) {
         User user = command.user();
@@ -30,7 +30,7 @@ public class PointService {
         return point;
     }
 
-    @DistributedLock(key = "'lock:point:' + #command.user.id")
+    @DistributedLock(topic = "point", key = "#command.user.id")
     @Transactional
     public Point use(PointCommand.Use command) {
         User user = command.user();
