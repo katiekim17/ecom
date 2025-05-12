@@ -10,10 +10,10 @@ import kr.hhplus.be.server.domain.payment.PaymentService;
 import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponCommand;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponInfo;
 import kr.hhplus.be.server.domain.userCoupon.UserCouponService;
+import kr.hhplus.be.server.support.config.redis.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderFacade {
 
-    private final UserService userService;
     private final ProductService productService;
     private final UserCouponService userCouponService;
     private final OrderService orderService;
@@ -32,6 +31,7 @@ public class OrderFacade {
 
 
     @Transactional
+    @DistributedLock(topic = "product", key = "#criteria.toLockKeys()")
     public OrderResult order(OrderCriteria.Create criteria) {
 
         User user = criteria.user();
