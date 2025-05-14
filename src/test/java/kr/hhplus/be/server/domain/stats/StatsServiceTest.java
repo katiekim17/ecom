@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.domain.stats;
 
+import kr.hhplus.be.server.domain.order.OrderProduct;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.infra.stats.SalesProductSummary;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,7 +56,7 @@ class StatsServiceTest {
 
     @DisplayName("3일간 가장 많이 팔린 상품 5개를 조회할 수 있다.")
     @Test
-    void test() {
+    void getPopularProductsBy3Days() {
         // given
         List<PopularProduct> res = List.of(new PopularProduct(1L, 45L, "맥북", 5000, 50),
                 new PopularProduct(2L, 45L, "맥북", 5000, 50),
@@ -69,6 +72,24 @@ class StatsServiceTest {
         // then
         assertThat(popularProducts).isNotNull();
         verify(statsRepository, times(1)).getPopularProducts(command.startDate(), command.endDate());
+    }
+
+    @DisplayName("statsService의 saveSalesProductByOrder가 호출되면 repository를 호출하여 해당 데이터를 저장한다.")
+    @Test
+    void saveSalesProductByOrder() {
+        // given
+        Product product = Product.create("사과", 1000, 10);
+        List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
+        LocalDateTime orderDateTime = LocalDateTime.of(2025, 5, 14, 0, 0, 0);
+        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderProducts, orderDateTime);
+
+        doNothing().when(statsRepository).saveSalesProductsByOrder(orderProducts, orderDateTime);
+
+        // when
+        statsService.saveSalesProductByOrder(command);
+
+        // then
+        verify(statsRepository, times(1)).saveSalesProductsByOrder(orderProducts, orderDateTime);
     }
 
 }

@@ -29,5 +29,9 @@ public class StatsService {
         statsRepository.batchInsert(salesProducts);
     }
 
+    @Transactional
+    public void saveSalesProductByOrder(StatsCommand.SaveSalesProductsByOrder command) {
+        statsRepository.saveSalesProductsByOrder(command.orderProducts(), command.orderDateTime());
+    }
 
 }
