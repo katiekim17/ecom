@@ -37,14 +37,14 @@ class RankingEventListenerTest {
         OrderInfo orderInfo = OrderInfo.from(order);
 
         RankingCriteria criteria = new RankingCriteria(orderInfo);
-        doNothing().when(rankingFacade).saveDailyRanking(criteria);
+        doNothing().when(rankingFacade).saveSalesProduct(criteria);
 
         OrderCompletedEvent event = new OrderCompletedEvent(orderInfo);
         // when
         listener.handleOrderCompleted(event);
 
         // then
-        verify(rankingFacade).saveDailyRanking(criteria);
+        verify(rankingFacade).saveSalesProduct(criteria);
     }
     
 

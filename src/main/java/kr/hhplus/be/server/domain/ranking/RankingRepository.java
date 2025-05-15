@@ -6,5 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface RankingRepository {
-    void saveDailyRanking(List<OrderProduct> orderProducts, LocalDateTime orderDateTime);
+    void saveSalesProduct(List<OrderProduct> orderProducts, LocalDateTime orderDateTime);
+    void saveDailyRanking(LocalDateTime targetDateTime);
+    List<SalesProduct> findDailySalesProducts();
 }

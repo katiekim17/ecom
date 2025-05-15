@@ -18,6 +18,6 @@ public class RankingEventListener {
     @Async
     public void handleOrderCompleted(OrderCompletedEvent event) {
         RankingCriteria criteria = new RankingCriteria(event.orderInfo());
-        rankingFacade.saveDailyRanking(criteria);
+        rankingFacade.saveSalesProduct(criteria);
     }
 }

@@ -34,11 +34,11 @@ class RankingRepositoryImplTest {
         // given
         OrderProduct orderProduct1 = OrderProduct.create(new ProductInfo(1L, "사과", 1000, 10), 2);
         OrderProduct orderProduct2 = OrderProduct.create(new ProductInfo(2L, "배", 1000, 10), 1);
-        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(List.of(orderProduct1, orderProduct2)
+        RankingCommand.SaveSalesProduct command = new RankingCommand.SaveSalesProduct(List.of(orderProduct1, orderProduct2)
                 , LocalDateTime.of(2025, 5, 12, 0, 0, 0));
         when(redisTemplate.opsForZSet().incrementScore(anyString(), anyString(), anyDouble())).thenReturn(1.0);
         // when
-        redisRankingRepository.saveDailyRanking(command.orderProducts(), command.orderDateTime());
+        redisRankingRepository.saveSalesProduct(command.orderProducts(), command.orderDateTime());
 
         // then
         verify(redisTemplate.opsForZSet(), times(2)).incrementScore(anyString(), anyString(), anyDouble());

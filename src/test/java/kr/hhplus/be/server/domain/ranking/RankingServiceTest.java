@@ -31,15 +31,43 @@ class RankingServiceTest {
         Product product = Product.create("사과", 1000, 10);
         List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
         LocalDateTime orderDateTime = LocalDateTime.of(2025, 5, 14, 0, 0, 0);
-        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(orderProducts, orderDateTime);
+        RankingCommand.SaveSalesProduct command = new RankingCommand.SaveSalesProduct(orderProducts, orderDateTime);
 
-        doNothing().when(rankingRepository).saveDailyRanking(orderProducts, orderDateTime);
+        doNothing().when(rankingRepository).saveSalesProduct(orderProducts, orderDateTime);
 
         // when
+        rankingService.saveSalesProduct(command);
+
+        // then
+        verify(rankingRepository, times(1)).saveSalesProduct(orderProducts, orderDateTime);
+    }
+
+    @DisplayName("일간 랭킹을 저장할 수 있다.")
+    @Test
+    void saveDailyRanking() {
+        LocalDateTime targetDate = LocalDateTime.now();
+        // given
+        doNothing().when(rankingRepository).saveDailyRanking(targetDate);
+
+        // when
+        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(targetDate);
         rankingService.saveDailyRanking(command);
 
         // then
-        verify(rankingRepository, times(1)).saveDailyRanking(orderProducts, orderDateTime);
+        verify(rankingRepository, times(1)).saveDailyRanking(targetDate);
+    }
+
+    @DisplayName("일간 랭킹의 product id 목록을 조회할 수 있다.")
+    @Test
+    void findDailyRankingProductIds() {
+        // given
+        List<SalesProduct> ids = List.of(SalesProduct.create(1L, 1), SalesProduct.create(2L, 1));
+        when(rankingRepository.findDailySalesProducts()).thenReturn(ids);
+        // when
+        List<SalesProduct> dailySalesProduct = rankingService.findDailySalesProducts();
+
+        // then
+        verify(rankingRepository, times(1)).findDailySalesProducts();
     }
 
 }
