@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.stats;
 
-import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.infra.stats.SalesProductSummary;
 
 import java.time.LocalDate;
@@ -11,6 +10,4 @@ public interface StatsRepository {
     List<PopularProduct> getPopularProducts(LocalDate startDate, LocalDate endDate);
     List<SalesProductSummary> findSalesProductSummaryByDateTime(LocalDateTime datetime);
     void batchInsert(List<SalesProductSummary> products);
-
-    void saveSalesProductsByOrder(List<OrderProduct> orderProducts, LocalDateTime orderDateTime);
 }

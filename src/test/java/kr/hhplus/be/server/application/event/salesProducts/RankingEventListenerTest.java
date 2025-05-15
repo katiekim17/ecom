@@ -5,8 +5,8 @@ import kr.hhplus.be.server.domain.order.OrderInfo;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductInfo;
+import kr.hhplus.be.server.domain.ranking.RankingService;
 import kr.hhplus.be.server.domain.stats.StatsCommand;
-import kr.hhplus.be.server.domain.stats.StatsService;
 import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,13 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class StatsEventListenerTest {
+class RankingEventListenerTest {
 
     @Mock
-    StatsService statsService;
+    private RankingService rankingService;
 
     @InjectMocks
-    StatsEventListener listener;
+    private RankingEventListener listener;
 
     @DisplayName("주문 완료 event가 발행되면 listener는 statsService의 saveSalesProductByOrder를 호출한다.")
     @Test
@@ -38,12 +38,12 @@ class StatsEventListenerTest {
         StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderInfo.orderProducts(), orderInfo.orderDateTime());
         OrderCompletedEvent event = new OrderCompletedEvent(orderInfo);
 
-        doNothing().when(statsService).saveSalesProductByOrder(command);
+        doNothing().when(rankingService).saveDailyRanking(command);
         // when
         listener.handleOrderCompleted(event);
 
         // then
-        verify(statsService).saveSalesProductByOrder(command);
+        verify(rankingService).saveDailyRanking(command);
     }
     
 

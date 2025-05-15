@@ -1,8 +1,5 @@
 package kr.hhplus.be.server.domain.stats;
 
-import kr.hhplus.be.server.domain.order.OrderProduct;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.infra.stats.SalesProductSummary;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,24 +69,6 @@ class StatsServiceTest {
         // then
         assertThat(popularProducts).isNotNull();
         verify(statsRepository, times(1)).getPopularProducts(command.startDate(), command.endDate());
-    }
-
-    @DisplayName("statsService의 saveSalesProductByOrder가 호출되면 repository를 호출하여 해당 데이터를 저장한다.")
-    @Test
-    void saveSalesProductByOrder() {
-        // given
-        Product product = Product.create("사과", 1000, 10);
-        List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
-        LocalDateTime orderDateTime = LocalDateTime.of(2025, 5, 14, 0, 0, 0);
-        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderProducts, orderDateTime);
-
-        doNothing().when(statsRepository).saveSalesProductsByOrder(orderProducts, orderDateTime);
-
-        // when
-        statsService.saveSalesProductByOrder(command);
-
-        // then
-        verify(statsRepository, times(1)).saveSalesProductsByOrder(orderProducts, orderDateTime);
     }
 
 }

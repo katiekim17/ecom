@@ -23,4 +23,13 @@ public class StatsScheduler {
         salesService.saveSalesProductByDateTime(command);
     }
 
+    @Scheduled(cron = "0 30 23 * * *")
+    public void dailySalesProducts() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime today = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth() - 1,
+                0, 0, 0);
+        StatsCommand.SaveSalesProducts command = new StatsCommand.SaveSalesProducts(today);
+        salesService.saveSalesProductByDateTime(command);
+    }
+
 }

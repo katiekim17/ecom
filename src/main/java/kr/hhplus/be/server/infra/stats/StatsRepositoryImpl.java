@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.infra.stats;
 
 
-import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.stats.PopularProduct;
 import kr.hhplus.be.server.domain.stats.StatsRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ public class StatsRepositoryImpl implements StatsRepository {
 
     private final NamedParameterJdbcTemplate jdbc;
     private final JpaStatsRepository jpaStatsRepository;
-    private final RedisStatsRepository redisStatsRepository;
 
     public void batchInsert(List<SalesProductSummary> products) {
         String sql = """
@@ -35,11 +33,6 @@ public class StatsRepositoryImpl implements StatsRepository {
                         .addValue("orderDate", p.getOrderDate())
                 ).toArray(SqlParameterSource[]::new);
         jdbc.batchUpdate(sql, batch);
-    }
-
-    @Override
-    public void saveSalesProductsByOrder(List<OrderProduct> orderProducts, LocalDateTime orderDateTime) {
-        redisStatsRepository.saveSalesProductsByOrder(orderProducts, orderDateTime);
     }
 
     public List<SalesProductSummary> findSalesProductSummaryByDateTime(LocalDateTime datetime){
