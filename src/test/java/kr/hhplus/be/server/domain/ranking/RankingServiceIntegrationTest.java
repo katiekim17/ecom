@@ -3,7 +3,6 @@ package kr.hhplus.be.server.domain.ranking;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductInfo;
-import kr.hhplus.be.server.domain.stats.StatsCommand;
 import kr.hhplus.be.server.infra.product.JpaProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ class RankingServiceIntegrationTest {
         Product product = Product.create("사과", 1000, 10);
         jpaProductRepository.save(product);
         List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
-        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderProducts, orderDateTime);
+        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(orderProducts, orderDateTime);
 
         // when
         rankingService.saveDailyRanking(command);
@@ -70,7 +69,7 @@ class RankingServiceIntegrationTest {
         Product product = Product.create("사과", 1000, 10);
         jpaProductRepository.save(product);
         List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
-        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderProducts, orderDateTime);
+        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(orderProducts, orderDateTime);
 
         // when
         rankingService.saveDailyRanking(command);
@@ -97,8 +96,8 @@ class RankingServiceIntegrationTest {
         Product product = Product.create("사과", 1000, 10);
         jpaProductRepository.save(product);
         List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
-        StatsCommand.SaveSalesProductsByOrder firstCommand = new StatsCommand.SaveSalesProductsByOrder(orderProducts, firstOrderDateTime);
-        StatsCommand.SaveSalesProductsByOrder secondCommand = new StatsCommand.SaveSalesProductsByOrder(orderProducts, secondOrderDateTime);
+        RankingCommand.SaveDailyRanking firstCommand = new RankingCommand.SaveDailyRanking(orderProducts, firstOrderDateTime);
+        RankingCommand.SaveDailyRanking secondCommand = new RankingCommand.SaveDailyRanking(orderProducts, secondOrderDateTime);
 
         // when
         rankingService.saveDailyRanking(firstCommand);

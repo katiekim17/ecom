@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.ranking;
 
-import kr.hhplus.be.server.domain.stats.StatsCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,8 @@ public class RankingService {
     private final RankingRepository rankingRepository;
 
     @Transactional
-    public void saveDailyRanking(StatsCommand.SaveSalesProductsByOrder command) {
+    public void saveDailyRanking(RankingCommand.SaveDailyRanking command) {
+        // 일간 랭킹 저장
         rankingRepository.saveDailyRanking(command.orderProducts(), command.orderDateTime());
     }
 

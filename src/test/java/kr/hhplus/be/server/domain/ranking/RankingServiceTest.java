@@ -3,7 +3,6 @@ package kr.hhplus.be.server.domain.ranking;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductInfo;
-import kr.hhplus.be.server.domain.stats.StatsCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +31,7 @@ class RankingServiceTest {
         Product product = Product.create("사과", 1000, 10);
         List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product), 2));
         LocalDateTime orderDateTime = LocalDateTime.of(2025, 5, 14, 0, 0, 0);
-        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderProducts, orderDateTime);
+        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(orderProducts, orderDateTime);
 
         doNothing().when(rankingRepository).saveDailyRanking(orderProducts, orderDateTime);
 

@@ -1,12 +1,12 @@
 package kr.hhplus.be.server.application.event.salesProducts;
 
+import kr.hhplus.be.server.application.ranking.RankingCriteria;
+import kr.hhplus.be.server.application.ranking.RankingFacade;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderInfo;
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductInfo;
-import kr.hhplus.be.server.domain.ranking.RankingService;
-import kr.hhplus.be.server.domain.stats.StatsCommand;
 import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 class RankingEventListenerTest {
 
     @Mock
-    private RankingService rankingService;
+    private RankingFacade rankingFacade;
 
     @InjectMocks
     private RankingEventListener listener;
@@ -35,15 +35,16 @@ class RankingEventListenerTest {
         Order order = Order.create(User.create("yeop"));
         order.addOrderProduct(orderProduct);
         OrderInfo orderInfo = OrderInfo.from(order);
-        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(orderInfo.orderProducts(), orderInfo.orderDateTime());
-        OrderCompletedEvent event = new OrderCompletedEvent(orderInfo);
 
-        doNothing().when(rankingService).saveDailyRanking(command);
+        RankingCriteria criteria = new RankingCriteria(orderInfo);
+        doNothing().when(rankingFacade).saveDailyRanking(criteria);
+
+        OrderCompletedEvent event = new OrderCompletedEvent(orderInfo);
         // when
         listener.handleOrderCompleted(event);
 
         // then
-        verify(rankingService).saveDailyRanking(command);
+        verify(rankingFacade).saveDailyRanking(criteria);
     }
     
 

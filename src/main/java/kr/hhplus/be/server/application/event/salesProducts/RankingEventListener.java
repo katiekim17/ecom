@@ -1,8 +1,7 @@
 package kr.hhplus.be.server.application.event.salesProducts;
 
-import kr.hhplus.be.server.domain.order.OrderInfo;
-import kr.hhplus.be.server.domain.ranking.RankingService;
-import kr.hhplus.be.server.domain.stats.StatsCommand;
+import kr.hhplus.be.server.application.ranking.RankingCriteria;
+import kr.hhplus.be.server.application.ranking.RankingFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -13,15 +12,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class RankingEventListener {
 
-    private final RankingService rankingService;
+    private final RankingFacade rankingFacade;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleOrderCompleted(OrderCompletedEvent event) {
-        OrderInfo orderInfo = event.orderInfo();
-        StatsCommand.SaveSalesProductsByOrder command =
-                new StatsCommand.SaveSalesProductsByOrder(
-                        orderInfo.orderProducts(), orderInfo.orderDateTime());
-        rankingService.saveDailyRanking(command);
+        RankingCriteria criteria = new RankingCriteria(event.orderInfo());
+        rankingFacade.saveDailyRanking(criteria);
     }
 }

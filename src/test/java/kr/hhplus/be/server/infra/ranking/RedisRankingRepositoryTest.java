@@ -2,7 +2,7 @@ package kr.hhplus.be.server.infra.ranking;
 
 import kr.hhplus.be.server.domain.order.OrderProduct;
 import kr.hhplus.be.server.domain.product.ProductInfo;
-import kr.hhplus.be.server.domain.stats.StatsCommand;
+import kr.hhplus.be.server.domain.ranking.RankingCommand;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ class RedisRankingRepositoryTest {
         // given
         OrderProduct orderProduct1 = OrderProduct.create(new ProductInfo(1L, "사과", 1000, 10), 2);
         OrderProduct orderProduct2 = OrderProduct.create(new ProductInfo(2L, "배", 1000, 10), 1);
-        StatsCommand.SaveSalesProductsByOrder command = new StatsCommand.SaveSalesProductsByOrder(List.of(orderProduct1, orderProduct2)
+        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(List.of(orderProduct1, orderProduct2)
                 , LocalDateTime.of(2025, 5, 12, 0, 0, 0));
         when(redisTemplate.opsForZSet().incrementScore(anyString(), anyString(), anyDouble())).thenReturn(1.0);
         // when
