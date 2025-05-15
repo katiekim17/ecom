@@ -126,17 +126,42 @@ class RankingServiceIntegrationTest {
                 .containsExactly(tuple(2.0, "product::" + product.getId()));
     }
 
-    @DisplayName("일간 순위의 product id과 판매 수량을 가진 SalesProduct의 목록을 조회할 수 있다.")
+    @DisplayName("")
     @Test
-    void findDailyRankingProductIds() {
+    void saveDailyRanking() {
         // given
-        LocalDateTime orderDateTime = LocalDateTime.now();
+        LocalDateTime orderDateTime = LocalDateTime.now().minusHours(2);
         Product product1 = Product.create("사과", 1000, 10);
         Product product2 = Product.create("배", 1000, 10);
         jpaProductRepository.saveAll(List.of(product1, product2));
         List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product1), 2), OrderProduct.create(ProductInfo.from(product2), 1));
         redisRankingRepository.saveSalesProduct(orderProducts, orderDateTime);
-        redisRankingRepository.saveDailyRanking(orderDateTime.plusHours(1));
+        String DAILY_KEY = "popularProducts::daily";
+
+        // when
+        LocalDateTime targetDate = LocalDateTime.now();
+        RankingCommand.SaveDailyRanking command = new RankingCommand.SaveDailyRanking(targetDate);
+        rankingService.saveDailyRanking(command);
+
+        // then
+        Set<ZSetOperations.TypedTuple<Object>> tuples = redisTemplate.opsForZSet().reverseRangeWithScores(DAILY_KEY, 0, -1);
+        assertThat(tuples).hasSize(2);
+        assertThat(tuples).extracting("score", "value")
+                .containsExactly(tuple(2.0, "product::" + product1.getId()), tuple(1.0, "product::" + product2.getId()));
+
+    }
+
+    @DisplayName("일간 순위의 product id과 판매 수량을 가진 SalesProduct의 목록을 조회할 수 있다.")
+    @Test
+    void findDailyRankingProductIds() {
+        // given
+        LocalDateTime orderDateTime = LocalDateTime.now().minusHours(2);
+        Product product1 = Product.create("사과", 1000, 10);
+        Product product2 = Product.create("배", 1000, 10);
+        jpaProductRepository.saveAll(List.of(product1, product2));
+        List<OrderProduct> orderProducts = List.of(OrderProduct.create(ProductInfo.from(product1), 2), OrderProduct.create(ProductInfo.from(product2), 1));
+        redisRankingRepository.saveSalesProduct(orderProducts, orderDateTime);
+        redisRankingRepository.saveDailyRanking(LocalDateTime.now());
         // when
         List<SalesProduct> salesProducts = rankingService.findDailySalesProducts();
 

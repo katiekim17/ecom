@@ -27,6 +27,6 @@ public class RankingRepositoryImpl implements RankingRepository {
 
     @Override
     public List<SalesProduct> findDailySalesProducts() {
-        return redisRankingRepository.findDailyProductIds();
+        return redisRankingRepository.findDailySalesProducts();
     }
 }

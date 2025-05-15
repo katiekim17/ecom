@@ -66,14 +66,14 @@ public class RedisRankingRepository {
 
         List<String> otherKeys = new ArrayList<>();
         for( int i = 1; i < 24; i++){
-            otherKeys.add(startDateTime.plusHours(i).format(YYYY_MM_DD_HH));
+            otherKeys.add(SALES_KEY_PREFIX + startDateTime.plusHours(i).format(YYYY_MM_DD_HH));
         }
 
         redisTemplate.opsForZSet().unionAndStore(firstKey, otherKeys, DAILY_KEY);
         redisTemplate.expire(DAILY_KEY, 70, TimeUnit.MINUTES);
     }
 
-    public List<SalesProduct> findDailyProductIds() {
+    public List<SalesProduct> findDailySalesProducts() {
 
         Set<ZSetOperations.TypedTuple<Object>> typedTuples =
                 redisTemplate.opsForZSet().reverseRangeWithScores(DAILY_KEY, 0, -1);
