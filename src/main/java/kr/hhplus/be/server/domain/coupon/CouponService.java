@@ -12,6 +12,18 @@ public class CouponService {
 
     private final CouponRepository couponRepository;
 
+    @Transactional
+    public Coupon register(CouponCommand.Register command){
+
+        Coupon coupon = Coupon.create(command.name(), command.type()
+                , command.discountType(), command.discountAmount()
+                , command.expirationMonth(), command.issueStartDate()
+                , command.issueEndDate(), command.initialQuantity());
+
+        return couponRepository.save(coupon);
+
+    }
+
     public Coupon issueValidate(Long id) {
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠폰입니다."));

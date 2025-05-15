@@ -29,6 +29,9 @@ public class Coupon extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
 
+    @Enumerated(EnumType.STRING)
+    private IssueStatus issueStatus;
+
     private int discountAmount;
     private int expirationMonth;
     private LocalDate issueStartDate;
@@ -77,6 +80,7 @@ public class Coupon extends BaseEntity {
         this.issueEndDate = issueEndDate;
         this.initialQuantity = initialQuantity;
         this.quantity = quantity;
+        this.issueStatus = IssueStatus.ING;
     }
 
     @Override

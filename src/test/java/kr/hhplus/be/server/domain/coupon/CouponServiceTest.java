@@ -54,4 +54,19 @@ class CouponServiceTest {
         verify(couponRepository, times(1)).findByIdForUpdate(couponId);
     }
 
+    @DisplayName("쿠폰을 생성하면 repository를 호출하여 저장한다.")
+    @Test
+    void register() {
+        // given
+        CouponCommand.Register command = new CouponCommand.Register("5000원 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now().minusDays(1), LocalDate.now().plusDays(3), 10);
+        Coupon coupon = Coupon.create(command.name(), command.type(), command.discountType(), command.discountAmount(), command.expirationMonth(), command.issueStartDate(), command.issueEndDate(), command.initialQuantity());
+        when(couponRepository.save(any(Coupon.class))).thenReturn(coupon);
+
+        // when
+        Coupon register = couponService.register(command);
+
+        // then
+        verify(couponRepository, times(1)).save(any(Coupon.class));
+    }
+
 }

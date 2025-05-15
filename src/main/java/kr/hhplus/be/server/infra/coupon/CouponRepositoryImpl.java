@@ -12,6 +12,12 @@ import java.util.Optional;
 public class CouponRepositoryImpl implements CouponRepository {
 
     private final JpaCouponRepository jpaCouponRepository;
+    private final RedisCouponRepository redisCouponRepository;
+
+    @Override
+    public Coupon save(Coupon coupon) {
+        return jpaCouponRepository.save(coupon);
+    }
 
     @Override
     public Optional<Coupon> findById(Long id) {
