@@ -12,4 +12,8 @@ public record CouponCriteria(
         }
     }
 
+    public record Issue(
+            Long couponId
+    ) {
+    }
 }

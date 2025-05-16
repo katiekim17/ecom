@@ -18,6 +18,19 @@ public record UserCouponCommand(
 
     }
 
+    public record CallIssue(
+        User user, Long couponId
+    ){
+
+    }
+
+    public record FindIssueTarget(
+            Long couponId,
+            int quantity
+    ){
+
+    }
+
     public record Validate(
             Long userId, Long userCouponId
     ){

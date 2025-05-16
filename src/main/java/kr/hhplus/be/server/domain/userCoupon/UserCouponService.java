@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.support.exception.AlreadyIssuedException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,12 +14,28 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserCouponService {
 
     private final UserService userService;
     private final UserCouponRepository userCouponRepository;
+
+
+    public void callIssueUserCoupon(UserCouponCommand.CallIssue command) {
+        boolean isFail = !userCouponRepository.callIssue(command.user().getId(), command.couponId());
+        if(isFail){
+           throw new AlreadyIssuedException("이미 발급 요청한 쿠폰입니다.");
+        }
+    }
+
+    public List<Long> findIssueTargetUserIds(UserCouponCommand.FindIssueTarget command) {
+        return userCouponRepository.findIssueTarget(command.couponId(), command.quantity());
+    }
 
     public UserCoupon findById(Long id) {
         return userCouponRepository.findById(id)
@@ -39,11 +56,22 @@ public class UserCouponService {
     }
 
     public UserCoupon issue(UserCouponCommand.Issue command){
-        userCouponRepository.findByUserIdAndCouponId(command.user().getId(), command.coupon().getId())
-                .ifPresent(userCoupon -> {throw new AlreadyIssuedException("이미 발급받은 쿠폰입니다.");});
-        Coupon coupon = command.coupon();
-        UserCoupon userCoupon = coupon.issueTo(command.user());
-        return userCouponRepository.save(userCoupon);
+
+        Optional<UserCoupon> byUserIdAndCouponId = userCouponRepository.findByUserIdAndCouponId(command.user().getId(), command.coupon().getId());
+
+        UserCoupon userCoupon;
+
+        if(byUserIdAndCouponId.isPresent()){
+            userCoupon = byUserIdAndCouponId.get();
+            log.error("이미 발급받은 쿠폰입니다.");
+            userCouponRepository.issueChecked(command.user().getId(), command.coupon().getId());
+        }else{
+            Coupon coupon = command.coupon();
+            userCoupon = coupon.issueTo(command.user());
+            userCouponRepository.save(userCoupon);
+        }
+
+        return userCoupon;
     }
 
     public UserCouponInfo validateAndGetInfo(UserCouponCommand.Validate command) {

@@ -5,7 +5,6 @@ import kr.hhplus.be.server.domain.common.BaseEntity;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
 import kr.hhplus.be.server.support.exception.CouponIssueLimitExceededException;
-import kr.hhplus.be.server.support.exception.CouponIssuePeriodException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,12 +50,14 @@ public class Coupon extends BaseEntity {
                 .build();
     }
 
-    public void issueValidation(LocalDate today) {
+    public boolean isValid(LocalDate today) {
         if(today.isBefore(issueStartDate) || today.isAfter(issueEndDate)){
-            throw new CouponIssuePeriodException();
-        }else if(quantity < 1) {
-            throw new CouponIssueLimitExceededException();
-        }
+            return false;
+        }else return quantity >= 1;
+    }
+
+    public void finishIssue() {
+        this.issueStatus = IssueStatus.FINISH;
     }
 
     public void deductQuantity() {
