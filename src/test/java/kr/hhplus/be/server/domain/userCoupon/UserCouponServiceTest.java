@@ -36,6 +36,43 @@ class UserCouponServiceTest {
     @InjectMocks
     private UserCouponService userCouponService;
 
+    @Nested
+    class callIssue {
+        @DisplayName("쿠폰 발급 요청할 수 있다.")
+        @Test
+        void successCallIssue() {
+            // given
+            User user = User.create("yeop");
+            Long couponId = 1L;
+            UserCouponCommand.CallIssue command = new UserCouponCommand.CallIssue(user, couponId);
+            when(userCouponRepository.callIssue(user.getId(), couponId)).thenReturn(true);
+            // when
+
+            userCouponService.callIssueUserCoupon(command);
+
+            // then
+            verify(userCouponRepository, times(1)).callIssue(user.getId(), couponId);
+        }
+
+        @DisplayName("쿠폰 발급 요청에 실패하는 경우 AlreadyIssuedException이 발생한다.")
+        @Test
+        void failCallIssue() {
+            // given
+            User user = User.create("yeop");
+            Long couponId = 1L;
+            UserCouponCommand.CallIssue command = new UserCouponCommand.CallIssue(user, couponId);
+            when(userCouponRepository.callIssue(user.getId(), couponId)).thenReturn(false);
+            // when
+
+            assertThatThrownBy(() -> userCouponService.callIssueUserCoupon(command))
+                    .isInstanceOf(AlreadyIssuedException.class)
+                            .hasMessage("이미 발급 요청한 쿠폰입니다.");
+
+            // then
+            verify(userCouponRepository, times(1)).callIssue(user.getId(), couponId);
+        }
+    }
+
     @DisplayName("userId로 해당 유저가 보유한 쿠폰을 모두 조회할 수 있다.")
     @Test
     void findAllByUserId() {
@@ -86,7 +123,7 @@ class UserCouponServiceTest {
             verify(userCouponRepository, times(1)).save(any(UserCoupon.class));
         }
 
-        @DisplayName("해당 쿠폰을 이미 발급받은 유저인 경우 AlreadyIssuedException이 발생한다.")
+        @DisplayName("해당 쿠폰을 이미 발급받은 유저인 경우 발급이 되지 않고 이전의 발급된 쿠폰 정보가 반환된다.")
         @Test
         void fail() {
             // given
@@ -95,12 +132,13 @@ class UserCouponServiceTest {
             UserCoupon userCoupon = UserCoupon.builder().userId(1L).couponId(1L).build();
             UserCouponCommand.Issue command = new UserCouponCommand.Issue(user, coupon);
             when(userCouponRepository.findByUserIdAndCouponId(user.getId(), coupon.getId())).thenReturn(Optional.of(userCoupon));
-            // when
 
-            assertThatThrownBy(() -> userCouponService.issue(command)).isInstanceOf(AlreadyIssuedException.class);
+            // when
+            UserCoupon issuedCoupon = userCouponService.issue(command);
 
             // then
             verify(userCouponRepository, times(1)).findByUserIdAndCouponId(user.getId(), coupon.getId());
+            assertThat(issuedCoupon.getId()).isEqualTo(userCoupon.getId());
         }
 
     }

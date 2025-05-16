@@ -31,7 +31,7 @@ class CouponServiceIntegrationTest {
 
     @DisplayName("쿠폰을 저장할 수 있다.")
     @Test
-    void test() {
+    void saveCoupon() {
         // given
         CouponCommand.Register command = new CouponCommand.Register("5000원 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now().minusDays(1), LocalDate.now().plusDays(3), 10);
 
@@ -41,6 +41,21 @@ class CouponServiceIntegrationTest {
         // then
         Coupon findCoupon = jpaCouponRepository.findById(coupon.getId()).orElseThrow();
         assertThat(findCoupon).isNotNull();
+    }
+
+    @DisplayName("유효성 검사에 실패한 경우 coupon의 상태가 finish로 변경된다.")
+    @Test
+    void issueValidate() {
+        // given
+        Coupon coupon = Coupon.create("4월 반짝 쿠폰", CouponType.TOTAL, DiscountType.FIXED, 5000, 3, LocalDate.now(), LocalDate.now().plusDays(3), 0);
+        jpaCouponRepository.save(coupon);
+
+        // when
+        couponService.issueValidate(coupon.getId());
+
+        // then
+        Coupon findCoupon = jpaCouponRepository.findById(coupon.getId()).orElseThrow();
+        assertThat(findCoupon.getIssueStatus()).isEqualTo(IssueStatus.FINISH);
     }
 
 }
