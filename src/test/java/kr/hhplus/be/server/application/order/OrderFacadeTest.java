@@ -15,9 +15,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.cache.RedisCacheManager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,6 +55,10 @@ class OrderFacadeTest {
     @Autowired
     private JpaOrderProductRepository jpaOrderProductRepository;
 
+    @Autowired
+    private RedisCacheManager redisCacheManager;
+
+
     @AfterEach
     void tearDown() {
         jpaPaymentRepository.deleteAllInBatch();
@@ -61,6 +68,8 @@ class OrderFacadeTest {
         jpaPointRepository.deleteAllInBatch();
         jpaUserRepository.deleteAllInBatch();
         jpaProductRepository.deleteAllInBatch();
+        Collection<String> cacheNames = redisCacheManager.getCacheNames();
+        cacheNames.forEach(cacheName -> Objects.requireNonNull(redisCacheManager.getCache(cacheName)).clear());
     }
 
     @DisplayName("동시에 동일한 상품으로 주문을 해도 정상적으로 재고가 차감된다.")

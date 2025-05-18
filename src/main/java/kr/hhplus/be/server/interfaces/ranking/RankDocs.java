@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.interfaces.stats;
+package kr.hhplus.be.server.interfaces.ranking;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -7,24 +7,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.hhplus.be.server.interfaces.product.ProductResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.util.List;
 
 @Tag(name = "stats", description = "stats API")
-public interface StatsDocs {
-
-    @Operation(summary = "인기 상품 조회", description = "3일간 가장 판매가 많은 순으로 5개의 상품이 조회됩니다.")
+public interface RankDocs {
+    @Operation(summary = "일간 상품 순위 조회", description = "일간 판매된 상품이 순위순으로 조회됩니다.")
     @ApiResponses(value ={
             @ApiResponse(
                     responseCode = "200",
-                    description = "인기 상품 조회 성공",
+                    description = "일간 상품 순위 조회",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ProductResponse.class),
+                            schema = @Schema(implementation = RankingResponse.class),
                             examples = @ExampleObject(value = """
                     {
-                      "products" : [
+                      [
                             {
                                 "productId": 1,
                                 "totalQuantity": "60",
@@ -66,5 +65,5 @@ public interface StatsDocs {
                     )
             )
     })
-    public ResponseEntity<StatsResponse.PopularProductResponse> popularProduct(@ModelAttribute StatsRequest request);
+    public ResponseEntity<List<RankingResponse>> dailyRanking();
 }

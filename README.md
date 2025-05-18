@@ -48,3 +48,10 @@ infra
 
 ## 8. Redis를 활용한 캐시 보고서
  - [Redis를 활용한 캐시 보고서](docs/cache.md)
+
+
+## 9. 캐시를 활용한 실시간 랭킹 보고서
+ - [레디스를 활용한 실시간 판매 순위 보고서](docs/ranking.md)
+
+## 10. Redis를 활용한 선착순 쿠폰 비동기 처리
+ - [쿠폰 발급 비동기로 성능 개선](docs/couponAsynchronous.md)

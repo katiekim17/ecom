@@ -3,7 +3,6 @@ package kr.hhplus.be.server.domain.coupon;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.userCoupon.UserCoupon;
 import kr.hhplus.be.server.support.exception.CouponIssueLimitExceededException;
-import kr.hhplus.be.server.support.exception.CouponIssuePeriodException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ class CouponTest {
 
     @Nested
     class issueValidation{
-        @DisplayName("쿠폰의 발급 가능 개수가 0인 경우 유효성 검사에 실패하며 CouponIssueLimitExceededException 발생한다.")
+        @DisplayName("쿠폰의 발급 가능 개수가 0인 경우 유효성 검사에 실패하며 false를 반환한다.")
         @Test
         void issueLeftQuantityZero() {
             // given
@@ -39,15 +38,12 @@ class CouponTest {
                     LocalDate.now(), LocalDate.now().plusDays(3), 0);
             LocalDate now = LocalDate.now();
 
-            // when
-            assertThatThrownBy(() -> coupon.issueValidation(now))
-                    .isInstanceOf(CouponIssueLimitExceededException.class)
-                    .hasMessage("발급 가능한 수량을 초과하였습니다.");
-
-            // then
+            // when // then
+            boolean isValid = coupon.isValid(now);
+            assertThat(isValid).isFalse();
         }
 
-        @DisplayName("현재 날짜가 쿠폰의 발급 기간이 아닌 경우 유효성 검사에 실패하며 CouponIssuePeriodException이 발생한다.")
+        @DisplayName("현재 날짜가 쿠폰의 발급 기간이 아닌 경우 유효성 검사에 실패하며 false를 반환한다.")
         @Test
         void notIssuePeriod() {
             // given
@@ -56,9 +52,8 @@ class CouponTest {
             LocalDate now = LocalDate.now();
 
             // when // then
-            assertThatThrownBy(() -> coupon.issueValidation(now))
-                    .isInstanceOf(CouponIssuePeriodException.class)
-                    .hasMessage("쿠폰 발급 기간이 아닙니다.");
+            boolean isValid = coupon.isValid(now);
+            assertThat(isValid).isFalse();
         }
     }
 

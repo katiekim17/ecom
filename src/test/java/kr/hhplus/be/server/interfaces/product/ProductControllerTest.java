@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductCommand;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.domain.user.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -44,17 +45,17 @@ class ProductControllerTest {
     void get_api_v1_products_have_id_200() throws Exception {
         //given
         Long productId = 1L;
-        Product product = Product.create("사과",5000,50);
+        ProductInfo product = ProductInfo.from(Product.create("사과",5000,50));
         when(productService.find(productId)).thenReturn(product);
 
         //when //then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/{productId}", productId))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.productId").value(product.getId()))
-                .andExpect(jsonPath("$.name").value(product.getName()))
-                .andExpect(jsonPath("$.stock").value(product.getStock()))
-                .andExpect(jsonPath("$.price").value(product.getPrice()))
+                .andExpect(jsonPath("$.productId").value(product.id()))
+                .andExpect(jsonPath("$.name").value(product.name()))
+                .andExpect(jsonPath("$.stock").value(product.stock()))
+                .andExpect(jsonPath("$.price").value(product.price()))
             ;
     }
 
@@ -64,8 +65,8 @@ class ProductControllerTest {
         // given
         ProductRequest.Products req = new ProductRequest.Products(1, 10);
         ProductCommand.FindAll command = req.toCommand();
-        Product product = Product.create("사과",5000,50);
-        PageResult<Product> result = PageResult.create(List.of(product), command.pageNo(), command.pageSize(), 1);
+        ProductInfo product = ProductInfo.from(Product.create("사과",5000,50));
+        PageResult<ProductInfo> result = PageResult.create(List.of(product), command.pageNo(), command.pageSize(), 1);
         when(productService.findAll(command)).thenReturn(result);
 
         //when //then

@@ -39,4 +39,8 @@ public class OrderProduct {
     public static OrderProduct create(ProductInfo productInfo, int quantity){
         return new OrderProduct(productInfo, quantity);
     }
+
+    public ProductInfo getProductInfo() {
+        return new ProductInfo(this.productId, this.name, this.price, 0);
+    }
 }

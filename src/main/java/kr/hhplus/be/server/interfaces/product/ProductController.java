@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.interfaces.product;
 
 import kr.hhplus.be.server.domain.common.PageResult;
-import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductCommand;
+import kr.hhplus.be.server.domain.product.ProductInfo;
 import kr.hhplus.be.server.domain.product.ProductService;
 import kr.hhplus.be.server.interfaces.common.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class ProductController implements ProductDocs{
 
     @GetMapping("/api/v1/products/{productId}")
     public ResponseEntity<ProductResponse> product(@PathVariable Long productId){
-        Product product = productService.find(productId);
+        ProductInfo product = productService.find(productId);
         return ResponseEntity.ok(ProductResponse.from(product));
     }
 
@@ -27,7 +27,7 @@ public class ProductController implements ProductDocs{
     public ResponseEntity<PageResponse<ProductResponse>> products(ProductRequest.Products request) {
         ProductCommand.FindAll command = request.toCommand();
 
-        PageResult<Product> result = productService.findAll(command);
+        PageResult<ProductInfo> result = productService.findAll(command);
 
         PageResponse<ProductResponse> response = new PageResponse<>(
                 result.content().stream().map(ProductResponse::from).toList()

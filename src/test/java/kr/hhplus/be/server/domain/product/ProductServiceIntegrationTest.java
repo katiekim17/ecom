@@ -2,14 +2,18 @@ package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.common.PageResult;
 import kr.hhplus.be.server.infra.product.JpaProductRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -24,8 +28,17 @@ class ProductServiceIntegrationTest {
     @Autowired
     private JpaProductRepository jpaProductRepository;
 
+    @Autowired
+    private RedisCacheManager redisCacheManager;
+
     @Nested
     class find {
+
+        @AfterEach
+        void tearDown() {
+            Collection<String> cacheNames = redisCacheManager.getCacheNames();
+            cacheNames.forEach(cacheName -> Objects.requireNonNull(redisCacheManager.getCache(cacheName)).clear());
+        }
 
         @DisplayName("상품 단건 조회를 할 수 있다.")
         @Test
@@ -35,13 +48,28 @@ class ProductServiceIntegrationTest {
             Product savedProduct = jpaProductRepository.save(product);
 
             // when
-            Product findProduct = productService.find(savedProduct.getId());
+            ProductInfo findProduct = productService.find(savedProduct.getId());
 
             // then
-            assertThat(findProduct.getId()).isEqualTo(savedProduct.getId());
-            assertThat(findProduct.getName()).isEqualTo(savedProduct.getName());
-            assertThat(findProduct.getPrice()).isEqualTo(savedProduct.getPrice());
-            assertThat(findProduct.getStock()).isEqualTo(savedProduct.getStock());
+            assertThat(findProduct.id()).isEqualTo(savedProduct.getId());
+            assertThat(findProduct.name()).isEqualTo(savedProduct.getName());
+            assertThat(findProduct.price()).isEqualTo(savedProduct.getPrice());
+            assertThat(findProduct.stock()).isEqualTo(savedProduct.getStock());
+        }
+
+        @DisplayName("")
+        @Test
+        void test() {
+            // given
+            Product product = Product.create("사과", 50, 1000);
+            Product savedProduct = jpaProductRepository.save(product);
+
+            // when
+            ProductInfo findProduct1 = productService.find(savedProduct.getId());
+            ProductInfo findProduct2 = productService.find(savedProduct.getId());
+
+            // then
+            assertThat(findProduct1.id()).isEqualTo(savedProduct.getId());
         }
 
         @DisplayName("상품을 조회할 때 페이징 된 상품 목록을 생성일자 내림차순으로 조회할 수 있다.")
@@ -60,7 +88,7 @@ class ProductServiceIntegrationTest {
 
             // when
             ProductCommand.FindAll command = new ProductCommand.FindAll(page, size);
-            PageResult<Product> pageResult = productService.findAll(command);
+            PageResult<ProductInfo> pageResult = productService.findAll(command);
 
             // then
             assertThat(pageResult.page()).isEqualTo(page);
