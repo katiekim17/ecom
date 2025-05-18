@@ -1,8 +1,14 @@
 package kr.hhplus.be.server.domain.coupon;
 
-public record CouponCommand(
-        Long userId,
-        Long couponId
-) {
+import java.time.LocalDate;
 
+public record CouponCommand(
+
+) {
+    public record Register(
+            String name, CouponType type,
+            DiscountType discountType, int discountAmount,
+            int expirationMonth, LocalDate issueStartDate, LocalDate issueEndDate, int initialQuantity) {
+
+    }
 }

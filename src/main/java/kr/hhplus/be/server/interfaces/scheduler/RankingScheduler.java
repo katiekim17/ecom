@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.interfaces.scheduler.ranking;
+package kr.hhplus.be.server.interfaces.scheduler;
 
 import kr.hhplus.be.server.domain.ranking.RankingCommand;
 import kr.hhplus.be.server.domain.ranking.RankingService;
