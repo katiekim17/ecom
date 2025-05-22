@@ -18,10 +18,10 @@ public class CouponScheduler {
     private final CouponFacade couponFacade;
     private final CouponService couponService;
 
-    @Scheduled(cron = "0 */10 * * * *")
-    public void hourlySalesProducts() {
-        List<Coupon> issueCouponList = couponService.findIssueCouponList();
-        issueCouponList.forEach(coupon -> couponFacade.issue(new CouponCriteria.Issue(coupon.getId())));
-    }
+//    @Scheduled(cron = "0 */10 * * * *")
+//    public void hourlySalesProducts() {
+//        List<Coupon> issueCouponList = couponService.findIssueCouponList();
+//        issueCouponList.forEach(coupon -> couponFacade.issue(new CouponCriteria.Issue(coupon.getId())));
+//    }
 
 }
