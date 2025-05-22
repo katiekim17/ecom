@@ -44,6 +44,9 @@ public class Order extends BaseEntity {
 
     private LocalDateTime orderDateTime;
 
+    @Getter
+    private String orderType; // ECOMMERCE or CONCERT
+
     public void addOrderProduct(OrderProduct orderProduct) {
         orderProducts.add(orderProduct);
         orderAmount += orderProduct.getPrice() * orderProduct.getQuantity();
@@ -83,4 +86,5 @@ public class Order extends BaseEntity {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 }
